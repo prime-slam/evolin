@@ -24,24 +24,25 @@ from src.metrics.detection.structural.distance.orthogonal import (
 from src.metrics.detection.structural.distance.structural import (
     __calculate_structural_distance,
 )
+from src.metrics.detection.structural.utils import __contains_zero_length_line
 
 
 def __calculate_structural_tp_indicators(
-    lines_pred: np.ndarray,
-    lines_gt: np.ndarray,
+    pred_lines: np.ndarray,
+    gt_lines: np.ndarray,
     distance_threshold: float = 5,
 ) -> np.ndarray:
     return __calculate_tp_indicators(
-        lines_pred,
-        lines_gt,
+        pred_lines,
+        gt_lines,
         distance_threshold,
         distance=__calculate_structural_distance,
     )
 
 
 def __calculate_orthogonal_tp_indicators(
-    lines_pred: np.ndarray,
-    lines_gt: np.ndarray,
+    pred_lines: np.ndarray,
+    gt_lines: np.ndarray,
     distance_threshold: float = 5,
     min_overlap: float = 0.5,
 ) -> np.ndarray:
@@ -49,19 +50,19 @@ def __calculate_orthogonal_tp_indicators(
         __calculate_averaged_orthogonal_distance, min_overlap=min_overlap
     )
     return __calculate_tp_indicators(
-        lines_pred, lines_gt, distance_threshold, distance=orthogonal_distance
+        pred_lines, gt_lines, distance_threshold, distance=orthogonal_distance
     )
 
 
 def __calculate_tp_indicators(
-    lines_pred: np.ndarray,
-    lines_gt: np.ndarray,
+    pred_lines: np.ndarray,
+    gt_lines: np.ndarray,
     distance_threshold: float,
-    distance: Callable,
+    distance: Callable = __calculate_structural_distance,
 ) -> np.ndarray:
     if (
-        np.max(lines_pred) > EVALUATION_RESOLUTION
-        or np.max(lines_gt) > EVALUATION_RESOLUTION
+        np.max(pred_lines) > EVALUATION_RESOLUTION
+        or np.max(gt_lines) > EVALUATION_RESOLUTION
     ):
         raise ValueError(
             f"The detection results and the ground truth "
@@ -70,28 +71,28 @@ def __calculate_tp_indicators(
         )
 
     # [x1, y1, x2, y2] -> [[x1, y1], [x2, y2]]
-    lines_pred = lines_pred.reshape((-1, 2, 2))
-    lines_gt = lines_gt.reshape((-1, 2, 2))
+    pred_lines = pred_lines.reshape((-1, 2, 2))
+    gt_lines = gt_lines.reshape((-1, 2, 2))
 
-    if np.any(np.logical_and.reduce(lines_pred[:, 0] == lines_pred[:, 1])):
+    if __contains_zero_length_line(pred_lines):
         raise ValueError(
             "The segment of zero length is contained in the set of predicted lines"
         )
 
-    if np.any(np.logical_and.reduce(lines_gt[:, 0] == lines_gt[:, 1])):
+    if __contains_zero_length_line(gt_lines):
         raise ValueError(
             "The segment of zero length is contained in the set of gt lines"
         )
 
-    distances = distance(lines_pred, lines_gt)
+    distances = distance(pred_lines, gt_lines)
 
     closest_gt_lines_indices = np.argmin(distances, 1)
     closest_gt_lines_distances = distances[
         np.arange(distances.shape[0]), closest_gt_lines_indices
     ]
 
-    predictions_number = len(lines_pred)
-    hit = np.zeros(len(lines_gt), bool)
+    predictions_number = len(pred_lines)
+    hit = np.zeros(len(gt_lines), bool)
     tp = np.zeros(predictions_number, bool)
 
     for pred_line in range(predictions_number):

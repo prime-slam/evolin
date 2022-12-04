@@ -29,7 +29,7 @@ def structural_average_precision(
     pred_lines_batch: List[np.ndarray],
     gt_lines_batch: List[np.ndarray],
     line_scores_batch: List[np.ndarray],
-    distance_threshold,
+    distance_threshold=5,
 ):
     """
     Calculates Structural Average Precision (SAP)
