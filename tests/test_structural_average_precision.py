@@ -18,7 +18,7 @@ import pytest
 from pathlib import Path
 
 from common import DATA_PATH
-from src.metrics.detection.structural import structural_average_precision\
+from src.metrics.detection.structural import structural_average_precision
 
 
 def test_sap():
