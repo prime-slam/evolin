@@ -36,5 +36,5 @@ jobs:
           pre-commit run --all-files --color always --verbose --show-diff-on-failure
 
       - name: Run pytest
-          run: |
-            python ./scripts/run_tests.py
+        run: |
+          python ./scripts/run_tests.py
