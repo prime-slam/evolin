@@ -17,8 +17,7 @@ import numpy as np
 from typing import Tuple
 
 from src.metrics.detection.structural.distance.distance import Distance
-from src.typing import ArrayNx2x2, ArrayNxM, ArrayNx2
-from src.typing.hints import ArrayNxMx2
+from src.typing import ArrayNx2x2, ArrayNxM, ArrayNx2, ArrayNxMx2
 
 
 class OrthogonalDistance(Distance):
