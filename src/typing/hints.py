@@ -17,7 +17,7 @@ import numpy.typing as npt
 
 from typing import Annotated, Literal, TypeVar
 
-__all__ = ["ArrayNxM", "ArrayN", "ArrayN", "ArrayNx2", "ArrayNx4", "ArrayNx2x2"]
+__all__ = ["ArrayNxM", "ArrayN", "ArrayNx2", "ArrayNx4", "ArrayNx2x2", "ArrayNxMx2"]
 
 DType = TypeVar("DType", bound=np.generic)
 
