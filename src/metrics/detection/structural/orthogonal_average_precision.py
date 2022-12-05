@@ -16,10 +16,10 @@ import numpy as np
 
 from typing import List
 
-from src.typing import ArrayNx4, ArrayN
 from src.metrics.detection.structural.average_precision import AveragePrecision
 from src.metrics.detection.structural.distance.orthogonal import OrthogonalDistance
 from src.metrics.detection.structural.distance.tp_indicator import TPIndicator
+from src.typing import ArrayNx4, ArrayN
 
 __all__ = ["orthogonal_average_precision"]
 
