@@ -16,11 +16,19 @@ import numpy as np
 import pytest
 
 from src.metrics.detection.structural.constants import EVALUATION_RESOLUTION
-from src.metrics.detection.structural.distance.tp_indicator import (
-    __calculate_structural_tp_indicators,
-    __calculate_orthogonal_tp_indicators,
-    __calculate_tp_indicators,
-)
+from src.metrics.detection.structural.distance.orthogonal import OrthogonalDistance
+from src.metrics.detection.structural.distance.structural import StructuralDistance
+from src.metrics.detection.structural.distance.tp_indicator import TPIndicator
+
+
+@pytest.fixture
+def orthogonal_tp_indicator():
+    return TPIndicator(OrthogonalDistance(), 5)
+
+
+@pytest.fixture
+def structural_tp_indicator():
+    return TPIndicator(StructuralDistance(), 5)
 
 
 @pytest.mark.parametrize(
@@ -38,8 +46,10 @@ from src.metrics.detection.structural.distance.tp_indicator import (
         ),
     ],
 )
-def test_calculate_structural_tp_indicators(pred_lines, gt_lines, expected):
-    actual = __calculate_structural_tp_indicators(pred_lines, gt_lines)
+def test_calculate_structural_tp_indicators(
+    structural_tp_indicator, pred_lines, gt_lines, expected
+):
+    actual = structural_tp_indicator.indicate(pred_lines, gt_lines)
     assert (actual == expected).all()
 
 
@@ -58,8 +68,10 @@ def test_calculate_structural_tp_indicators(pred_lines, gt_lines, expected):
         ),
     ],
 )
-def test_calculate_orthogonal_tp_indicators(pred_lines, gt_lines, expected):
-    actual = __calculate_orthogonal_tp_indicators(pred_lines, gt_lines)
+def test_calculate_orthogonal_tp_indicators(
+    orthogonal_tp_indicator, pred_lines, gt_lines, expected
+):
+    actual = orthogonal_tp_indicator.indicate(pred_lines, gt_lines)
     assert (actual == expected).all()
 
 
@@ -76,9 +88,9 @@ def test_calculate_orthogonal_tp_indicators(pred_lines, gt_lines, expected):
         ),
     ],
 )
-def test_zero_length_line(pred_lines, gt_lines):
+def test_zero_length_line(structural_tp_indicator, pred_lines, gt_lines):
     with pytest.raises(ValueError):
-        __calculate_tp_indicators(pred_lines, gt_lines, 5)
+        structural_tp_indicator.indicate(pred_lines, gt_lines)
 
 
 @pytest.mark.parametrize(
@@ -94,6 +106,8 @@ def test_zero_length_line(pred_lines, gt_lines):
         ),
     ],
 )
-def test_length_line_greater_than_resolution(pred_lines, gt_lines):
+def test_length_line_greater_than_resolution(
+    structural_tp_indicator, pred_lines, gt_lines
+):
     with pytest.raises(ValueError):
-        __calculate_tp_indicators(pred_lines, gt_lines, 5)
+        structural_tp_indicator.indicate(pred_lines, gt_lines)

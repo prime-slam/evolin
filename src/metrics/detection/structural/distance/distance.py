@@ -14,22 +14,14 @@
 
 import numpy as np
 
-from src.metrics.detection.structural.distance.distance import Distance
+from abc import ABC, abstractmethod
+
 from src.typing import ArrayNx2x2, ArrayNxM
 
 
-class StructuralDistance(Distance):
+class Distance(ABC):
+    @abstractmethod
     def calculate(
-        self, first_lines: ArrayNx2x2[np.float], second_lines: ArrayNx2x2[np.float]
+        self, ffirst_lines: ArrayNx2x2[np.float], second_lines: ArrayNx2x2[np.float]
     ) -> ArrayNxM[np.float]:
-        endpoint_distances = (
-            (first_lines[:, np.newaxis, :, np.newaxis] - second_lines[:, np.newaxis])
-            ** 2
-        ).sum(-1)
-
-        structural_distances = np.minimum(
-            endpoint_distances[..., 0, 0] + endpoint_distances[..., 1, 1],
-            endpoint_distances[..., 0, 1] + endpoint_distances[..., 1, 0],
-        )
-
-        return structural_distances
+        pass

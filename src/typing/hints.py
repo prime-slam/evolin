@@ -13,7 +13,22 @@
 # limitations under the License.
 
 import numpy as np
+import numpy.typing as npt
 
+from typing import Annotated, Literal, TypeVar
 
-def __contains_zero_length_line(lines: np.ndarray) -> bool:
-    return np.any(np.logical_and.reduce(lines[..., 0, :] == lines[..., 1, :], axis=-1))
+__all__ = ["ArrayNxM", "ArrayN", "ArrayN", "ArrayNx2", "ArrayNx4", "ArrayNx2x2"]
+
+DType = TypeVar("DType", bound=np.generic)
+
+ArrayNxM = Annotated[npt.NDArray[DType], Literal["N", "M"]]
+
+ArrayNxMx2 = Annotated[npt.NDArray[DType], Literal["N", "M", 2]]
+
+ArrayN = Annotated[npt.NDArray[DType], Literal["N"]]
+
+ArrayNx2 = Annotated[npt.NDArray[DType], Literal["N", 2]]
+
+ArrayNx4 = Annotated[npt.NDArray[DType], Literal["N", 4]]
+
+ArrayNx2x2 = Annotated[npt.NDArray[DType], Literal["N", 2, 2]]

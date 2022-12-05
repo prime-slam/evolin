@@ -14,24 +14,23 @@
 
 import numpy as np
 
-from functools import partial
 from typing import List
 
-from src.metrics.detection.structural.average_precision import average_precision
-from src.metrics.detection.structural.distance.tp_indicator import (
-    __calculate_orthogonal_tp_indicators,
-)
+from src.typing import ArrayNx4, ArrayN
+from src.metrics.detection.structural.average_precision import AveragePrecision
+from src.metrics.detection.structural.distance.orthogonal import OrthogonalDistance
+from src.metrics.detection.structural.distance.tp_indicator import TPIndicator
 
 __all__ = ["orthogonal_average_precision"]
 
 
 def orthogonal_average_precision(
-    pred_lines_batch: List[np.ndarray],
-    gt_lines_batch: List[np.ndarray],
-    line_scores_batch: List[np.ndarray],
-    distance_threshold=5,
-    min_overlap=0.5,
-):
+    pred_lines_batch: List[ArrayNx4[np.float]],
+    gt_lines_batch: List[ArrayNx4[np.float]],
+    line_scores_batch: List[ArrayN[np.float]],
+    distance_threshold: float = 5,
+    min_overlap: float = 0.5,
+) -> float:
     """
     Calculates Orthogonal Average Precision (OAP)
     :param pred_lines_batch: list of predicted lines for each image
@@ -42,14 +41,12 @@ def orthogonal_average_precision(
     lines with a value greater than the threshold to be true positive
     :return: Orthogonal Average Precision value
     """
-    orthogonal_tp_indication = partial(
-        __calculate_orthogonal_tp_indicators,
-        distance_threshold=distance_threshold,
-        min_overlap=min_overlap,
+    orthogonal_tp_indicator = TPIndicator(
+        OrthogonalDistance(min_overlap), distance_threshold
     )
-    return average_precision(
+
+    return AveragePrecision(tp_indicator=orthogonal_tp_indicator).calculate(
         pred_lines_batch,
         gt_lines_batch,
         line_scores_batch,
-        tp_indication=orthogonal_tp_indication,
     )

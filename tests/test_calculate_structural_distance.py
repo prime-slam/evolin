@@ -15,9 +15,7 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.structural.distance.structural import (
-    __calculate_structural_distance,
-)
+from src.metrics.detection.structural.distance.structural import StructuralDistance
 
 
 @pytest.mark.parametrize(
@@ -33,5 +31,5 @@ from src.metrics.detection.structural.distance.structural import (
     ],
 )
 def test_correct_structural_distance(first_lines, second_lines, expected_distance):
-    actual_distance = __calculate_structural_distance(first_lines, second_lines)
+    actual_distance = StructuralDistance().calculate(first_lines, second_lines)
     assert (actual_distance == expected_distance).all()

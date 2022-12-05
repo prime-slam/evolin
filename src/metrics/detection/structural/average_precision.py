@@ -14,45 +14,61 @@
 
 import numpy as np
 
-from typing import List, Callable
+from typing import List
 
-__all__ = ["average_precision"]
+from src.typing import ArrayNx4, ArrayN
+from src.metrics.detection.structural.distance.tp_indicator import TPIndicator
+
+__all__ = ["AveragePrecision"]
 
 
-def average_precision(
-    pred_lines_batch: List[np.ndarray],
-    gt_lines_batch: List[np.ndarray],
-    line_scores_batch: List[np.ndarray],
-    tp_indication: Callable,
-) -> float:
+class AveragePrecision:
     """
-    Calculates Average Precision
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param line_scores_batch: list of predicted lines scores for each image
-    :param tp_indication: callable object that indicates whether line is true positive or not
-    :return: Average Precision value
+    Class that calculates the Average Precision
+    over batches of predicted and ground truth lines
     """
 
-    total_tp_indicators = [
-        # sort pred_lines in descending order of scores
-        tp_indication(pred_lines[np.argsort(-scores)], gt_lines)
-        for pred_lines, gt_lines, scores in zip(
-            pred_lines_batch, gt_lines_batch, line_scores_batch
-        )
-    ]
+    def __init__(
+        self,
+        tp_indicator: TPIndicator,
+    ):
+        """
+        :param tp_indicator: TPIndicator object that indicates whether line is true positive or not
+        """
+        self.tp_indicator = tp_indicator
 
-    total_tp_indicators = np.concatenate(total_tp_indicators, dtype=bool)
-    total_fp_indicators = ~total_tp_indicators
-    total_scores = np.concatenate(line_scores_batch)
-    gt_size = sum(len(gt_lines) for gt_lines in gt_lines_batch)
+    def calculate(
+        self,
+        pred_lines_batch: List[ArrayNx4[np.float]],
+        gt_lines_batch: List[ArrayNx4[np.float]],
+        line_scores_batch: List[ArrayN[np.float]],
+    ) -> float:
+        """
+        Calculates Average Precision
+        :param pred_lines_batch: list of predicted lines for each image
+        :param gt_lines_batch: list of ground truth lines for each image
+        :param line_scores_batch: list of predicted lines scores for each image
+        :return: Average Precision value
+        """
+        total_tp_indicators = [
+            # sort pred_lines in descending order of scores
+            self.tp_indicator.indicate(pred_lines[np.argsort(-scores)], gt_lines)
+            for pred_lines, gt_lines, scores in zip(
+                pred_lines_batch, gt_lines_batch, line_scores_batch
+            )
+        ]
 
-    index = np.argsort(-total_scores)
-    tp = np.cumsum(total_tp_indicators[index])
-    fp = np.cumsum(total_fp_indicators[index])
+        total_tp_indicators = np.concatenate(total_tp_indicators, dtype=bool)
+        total_fp_indicators = ~total_tp_indicators
+        total_scores = np.concatenate(line_scores_batch)
+        gt_size = sum(len(gt_lines) for gt_lines in gt_lines_batch)
 
-    epsilon = 1e-9
-    recall = tp / gt_size  # gt_size = tp + fn
-    precision = tp / np.maximum(tp + fp, epsilon)
+        index = np.argsort(-total_scores)
+        tp = np.cumsum(total_tp_indicators[index])
+        fp = np.cumsum(total_fp_indicators[index])
 
-    return np.trapz(x=recall, y=precision)
+        epsilon = 1e-9
+        recall = tp / gt_size  # gt_size = tp + fn
+        precision = tp / np.maximum(tp + fp, epsilon)
+
+        return np.trapz(x=recall, y=precision)

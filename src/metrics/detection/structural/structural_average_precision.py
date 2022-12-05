@@ -14,13 +14,11 @@
 
 import numpy as np
 
-from functools import partial
 from typing import List
 
-from src.metrics.detection.structural.average_precision import average_precision
-from src.metrics.detection.structural.distance.tp_indicator import (
-    __calculate_structural_tp_indicators,
-)
+from src.metrics.detection.structural.average_precision import AveragePrecision
+from src.metrics.detection.structural.distance.structural import StructuralDistance
+from src.metrics.detection.structural.distance.tp_indicator import TPIndicator
 
 __all__ = ["structural_average_precision"]
 
@@ -29,8 +27,8 @@ def structural_average_precision(
     pred_lines_batch: List[np.ndarray],
     gt_lines_batch: List[np.ndarray],
     line_scores_batch: List[np.ndarray],
-    distance_threshold=5,
-):
+    distance_threshold: float = 5,
+) -> float:
     """
     Calculates Structural Average Precision (SAP)
     :param pred_lines_batch: list of predicted lines for each image
@@ -39,12 +37,11 @@ def structural_average_precision(
     :param distance_threshold: threshold in pixels within which the line is considered to be true positive
     :return: Structural Average Precision value
     """
-    structural_tp_indication = partial(
-        __calculate_structural_tp_indicators, distance_threshold=distance_threshold
-    )
-    return average_precision(
+
+    structural_tp_indicator = TPIndicator(StructuralDistance(), distance_threshold)
+
+    return AveragePrecision(tp_indicator=structural_tp_indicator).calculate(
         pred_lines_batch,
         gt_lines_batch,
         line_scores_batch,
-        tp_indication=structural_tp_indication,
     )

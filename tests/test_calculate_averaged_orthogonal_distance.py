@@ -15,18 +15,14 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.structural.distance.orthogonal import (
-    __calculate_averaged_orthogonal_distance,
-)
+from src.metrics.detection.structural.distance.orthogonal import OrthogonalDistance
 
 
 def test_infinite_distance():
     first_lines = np.array([[[0, 0], [1, 0]]])
     second_lines = np.array([[[0, 0], [0, 1]]])
     expected_distance = np.array([[np.inf]])
-    actual_distance = __calculate_averaged_orthogonal_distance(
-        first_lines, second_lines
-    )
+    actual_distance = OrthogonalDistance().calculate(first_lines, second_lines)
     assert (actual_distance == expected_distance).all()
 
 
@@ -47,9 +43,7 @@ def test_infinite_distance():
     ],
 )
 def test_correct_finite_distance(first_lines, second_lines, expected_distance):
-    actual_distance = __calculate_averaged_orthogonal_distance(
-        first_lines, second_lines
-    )
+    actual_distance = OrthogonalDistance().calculate(first_lines, second_lines)
     diff = np.abs(actual_distance - expected_distance)
     eps = 0.001
     assert (diff < eps).all()
