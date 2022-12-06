@@ -15,10 +15,8 @@
 import numpy as np
 import pytest
 
-from pathlib import Path
-
 from common import DATA_PATH
-from src.metrics.detection.structural import structural_average_precision
+from src.metrics.detection.vectorized import structural_average_precision
 
 
 def test_sap():
@@ -26,6 +24,7 @@ def test_sap():
     gt_lines = np.genfromtxt(DATA_PATH / "gt.csv", delimiter=",")
     line_scores = np.genfromtxt(DATA_PATH / "score.csv", delimiter=",")
     actual = structural_average_precision([pred_lines], [gt_lines], [line_scores])
+    # The reference result was calculated using metric from here https://github.com/zhou13/lcnn
     expected = 0.3835
     eps = 0.001
     assert np.abs(actual - expected) < eps

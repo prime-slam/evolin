@@ -14,9 +14,9 @@
 
 import numpy as np
 
-from src.metrics.detection.structural.constants import EVALUATION_RESOLUTION
-from src.metrics.detection.structural.distance.distance import Distance
-from src.metrics.detection.structural.distance.utils import contains_zero_length_line
+from src.metrics.detection.vectorized.constants import EVALUATION_RESOLUTION
+from src.metrics.detection.vectorized.distance.distance import Distance
+from src.metrics.detection.vectorized.distance.utils import contains_zero_length_line
 from src.typing import ArrayNx4, ArrayN
 
 

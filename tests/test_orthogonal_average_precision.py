@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 
 from common import DATA_PATH
-from src.metrics.detection.structural import orthogonal_average_precision
+from src.metrics.detection.vectorized import orthogonal_average_precision
 
 
 def test_oap():
@@ -24,6 +24,7 @@ def test_oap():
     gt_lines = np.genfromtxt(DATA_PATH / "gt.csv", delimiter=",")
     line_scores = np.genfromtxt(DATA_PATH / "score.csv", delimiter=",")
     actual = orthogonal_average_precision([pred_lines], [gt_lines], [line_scores])
+    # The reference result was calculated using metric from here https://github.com/cvg/SOLD2
     expected = 0.5222
     eps = 0.001
     assert np.abs(actual - expected) < eps

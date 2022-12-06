@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.structural.distance.structural import StructuralDistance
+from src.metrics.detection.vectorized.distance.structural import StructuralDistance
 
 
 @pytest.mark.parametrize(

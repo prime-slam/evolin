@@ -17,7 +17,7 @@ import numpy as np
 from typing import List
 
 from src.typing import ArrayNx4, ArrayN
-from src.metrics.detection.structural.distance.tp_indicator import TPIndicator
+from src.metrics.detection.vectorized.distance.tp_indicator import TPIndicator
 
 __all__ = ["AveragePrecision"]
 

@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.structural.distance.orthogonal import OrthogonalDistance
+from src.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
 
 
 def test_infinite_distance():

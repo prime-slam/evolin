@@ -16,7 +16,7 @@ import numpy as np
 
 from typing import Tuple
 
-from src.metrics.detection.structural.distance.distance import Distance
+from src.metrics.detection.vectorized.distance.distance import Distance
 from src.typing import ArrayNx2x2, ArrayNxM, ArrayNx2, ArrayNxMx2
 
 

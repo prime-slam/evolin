@@ -1,1 +1,1 @@
-from src.metrics.detection import structural
+from src.metrics.detection import vectorized

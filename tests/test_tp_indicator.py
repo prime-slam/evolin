@@ -15,10 +15,10 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.structural.constants import EVALUATION_RESOLUTION
-from src.metrics.detection.structural.distance.orthogonal import OrthogonalDistance
-from src.metrics.detection.structural.distance.structural import StructuralDistance
-from src.metrics.detection.structural.distance.tp_indicator import TPIndicator
+from src.metrics.detection.vectorized.constants import EVALUATION_RESOLUTION
+from src.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
+from src.metrics.detection.vectorized.distance.structural import StructuralDistance
+from src.metrics.detection.vectorized.distance.tp_indicator import TPIndicator
 
 
 @pytest.fixture
