@@ -1,0 +1,5 @@
+black
+numpy
+pre-commit
+pytest
+scipy
