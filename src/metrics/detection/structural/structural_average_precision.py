@@ -19,14 +19,15 @@ from typing import List
 from src.metrics.detection.structural.average_precision import AveragePrecision
 from src.metrics.detection.structural.distance.structural import StructuralDistance
 from src.metrics.detection.structural.distance.tp_indicator import TPIndicator
+from src.typing import ArrayNx4, ArrayN
 
 __all__ = ["structural_average_precision"]
 
 
 def structural_average_precision(
-    pred_lines_batch: List[np.ndarray],
-    gt_lines_batch: List[np.ndarray],
-    line_scores_batch: List[np.ndarray],
+    pred_lines_batch: List[ArrayNx4[np.float]],
+    gt_lines_batch: List[ArrayNx4[np.float]],
+    line_scores_batch: List[ArrayN[np.float]],
     distance_threshold: float = 5,
 ) -> float:
     """
