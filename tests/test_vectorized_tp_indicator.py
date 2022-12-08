@@ -18,17 +18,19 @@ import pytest
 from src.metrics.detection.vectorized.constants import EVALUATION_RESOLUTION
 from src.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
 from src.metrics.detection.vectorized.distance.structural import StructuralDistance
-from src.metrics.detection.vectorized.distance.tp_indicator import TPIndicator
+from src.metrics.detection.vectorized.distance.vectorized_tp_indicator import (
+    VectorizedTPIndicator,
+)
 
 
 @pytest.fixture
 def orthogonal_tp_indicator():
-    return TPIndicator(OrthogonalDistance(), 5)
+    return VectorizedTPIndicator(OrthogonalDistance(), 5)
 
 
 @pytest.fixture
 def structural_tp_indicator():
-    return TPIndicator(StructuralDistance(), 5)
+    return VectorizedTPIndicator(StructuralDistance(), 5)
 
 
 @pytest.mark.parametrize(

@@ -18,7 +18,9 @@ from typing import List
 
 from src.metrics.detection.vectorized.average_precision import AveragePrecision
 from src.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
-from src.metrics.detection.vectorized.distance.tp_indicator import TPIndicator
+from src.metrics.detection.vectorized.distance.vectorized_tp_indicator import (
+    VectorizedTPIndicator,
+)
 from src.typing import ArrayNx4, ArrayN
 
 __all__ = ["orthogonal_average_precision"]
@@ -41,7 +43,7 @@ def orthogonal_average_precision(
     lines with a value greater than the threshold to be true positive
     :return: Orthogonal Average Precision value
     """
-    orthogonal_tp_indicator = TPIndicator(
+    orthogonal_tp_indicator = VectorizedTPIndicator(
         OrthogonalDistance(min_overlap), distance_threshold
     )
 

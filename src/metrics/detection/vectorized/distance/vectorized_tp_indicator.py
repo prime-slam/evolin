@@ -20,7 +20,7 @@ from src.metrics.detection.vectorized.distance.utils import contains_zero_length
 from src.typing import ArrayNx4, ArrayN
 
 
-class TPIndicator:
+class VectorizedTPIndicator:
     def __init__(self, distance: Distance, distance_threshold: float):
         self.distance = distance
         self.distance_threshold = distance_threshold

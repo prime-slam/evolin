@@ -18,7 +18,9 @@ from typing import List
 
 from src.metrics.detection.vectorized.average_precision import AveragePrecision
 from src.metrics.detection.vectorized.distance.structural import StructuralDistance
-from src.metrics.detection.vectorized.distance.tp_indicator import TPIndicator
+from src.metrics.detection.vectorized.distance.vectorized_tp_indicator import (
+    VectorizedTPIndicator,
+)
 from src.typing import ArrayNx4, ArrayN
 
 __all__ = ["structural_average_precision"]
@@ -39,7 +41,9 @@ def structural_average_precision(
     :return: Structural Average Precision value
     """
 
-    structural_tp_indicator = TPIndicator(StructuralDistance(), distance_threshold)
+    structural_tp_indicator = VectorizedTPIndicator(
+        StructuralDistance(), distance_threshold
+    )
 
     return AveragePrecision(tp_indicator=structural_tp_indicator).calculate(
         pred_lines_batch,
