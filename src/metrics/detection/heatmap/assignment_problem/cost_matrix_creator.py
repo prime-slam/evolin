@@ -14,7 +14,7 @@
 
 import numpy as np
 
-from src.typing import ArrayNx3
+from src.typing import ArrayNx3, ArrayNxN
 
 
 class CostMatrixCreator:
@@ -24,7 +24,7 @@ class CostMatrixCreator:
 
     def create(
         self, edges: ArrayNx3[np.float], first_part_size: int, second_part_size: int
-    ):
+    ) -> ArrayNxN[np.float]:
         matrix_size = first_part_size + second_part_size
         min_part_size = min(first_part_size, second_part_size)
         max_part_size = max(first_part_size, second_part_size)

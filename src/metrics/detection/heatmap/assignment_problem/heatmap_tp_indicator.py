@@ -94,6 +94,8 @@ class HeatmapTPIndicator:
         return tp_indicators
 
     @staticmethod
-    def create_radius_mask(height, width, center_y, center_x, radius):
+    def create_radius_mask(
+        height: int, width: int, center_y: int, center_x: int, radius: int
+    ) -> ArrayNxM[np.float]:
         y, x = np.ogrid[-center_y : height - center_y, -center_x : width - center_x]
         return x * x + y * y <= radius * radius

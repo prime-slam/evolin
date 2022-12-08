@@ -25,11 +25,14 @@ __all__ = [
     "ArrayNx4",
     "ArrayNx2x2",
     "ArrayNxMx2",
+    "ArrayNxN",
 ]
 
 DType = TypeVar("DType", bound=np.generic)
 
 ArrayNxM = Annotated[npt.NDArray[DType], Literal["N", "M"]]
+
+ArrayNxN = Annotated[npt.NDArray[DType], Literal["N", "N"]]
 
 ArrayNxMx2 = Annotated[npt.NDArray[DType], Literal["N", "M", 2]]
 
