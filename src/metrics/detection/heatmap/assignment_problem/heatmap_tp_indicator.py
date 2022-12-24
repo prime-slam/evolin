@@ -16,6 +16,8 @@ import numpy as np
 
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import min_weight_full_bipartite_matching
+from scipy.spatial import distance_matrix
+from scipy.stats import rankdata
 
 from src.metrics.detection.heatmap.assignment_problem.cost_matrix_creator import (
     CostMatrixCreator,
@@ -35,67 +37,48 @@ class HeatmapTPIndicator:
                 "The gt heatmap and the predicted heatmap must have the same shape"
             )
         map_shape = gt_map.shape
-        pred_map = pred_map
         diagonal = np.sqrt(sum(map(lambda x: x**2, map_shape)))
         outlier_cost = diagonal
         cost_matrix_creator = CostMatrixCreator(outlier_cost)
-        max_dist = self.max_dist_diag_ratio * diagonal
-
-        radius = np.ceil(max_dist).astype(int)
-        gt_nodes_size = 0
-        pred_nodes_size = 0
-
-        pred_matchable = np.zeros(map_shape, dtype=bool)
-        gt_node_to_pix = []
-        gt_pix_to_node = np.full(map_shape, -1)
-        pred_pix_to_node = np.full(map_shape, -1)
-        edges = []
+        max_dist = np.ceil(self.max_dist_diag_ratio * diagonal).astype(int)
         epsilon = 1e-5
 
-        for y1, x1 in zip(*gt_map.nonzero()):
-            radius_mask = HeatmapTPIndicator.create_radius_mask(
-                *map_shape, y1, x1, radius
-            )
-            pred_matchable_y, pred_matchable_x = (pred_map & radius_mask).nonzero()
-            if pred_matchable_y.size != 0:
-                gt_pix_to_node[y1, x1] = gt_nodes_size
-                gt_node_to_pix.append((y1, x1))
-                gt_nodes_size += 1
-            for y2, x2 in zip(pred_matchable_y, pred_matchable_x):
-                if not pred_matchable[y2, x2]:
-                    pred_matchable[y2, x2] = True
-                    pred_pix_to_node[y2, x2] = pred_nodes_size
-                    pred_nodes_size += 1
+        gt_pixels = np.column_stack(gt_map.nonzero())
+        pred_pixels = np.column_stack(pred_map.nonzero())
+        pixel_distances = distance_matrix(gt_pixels, pred_pixels)
 
-                dist = (y1 - y2) ** 2 + (x1 - x2) ** 2
-                i = gt_pix_to_node[y1, x1]
-                j = pred_pix_to_node[y2, x2]
-                w = max(np.sqrt(dist), epsilon)
-                edges.append([i, j, w])
+        gt_pixels_index, pred_pixels_index = (pixel_distances <= max_dist).nonzero()
+        gt_nodes = rankdata(gt_pixels_index, method="dense") - 1
+        pred_nodes = rankdata(pred_pixels_index, method="dense") - 1
+        weights = np.maximum(
+            pixel_distances[gt_pixels_index, pred_pixels_index], epsilon
+        )
+
         tp_indicators = np.zeros(map_shape, dtype=bool)
 
-        if len(edges) == 0:
+        if len(weights) == 0:
             return tp_indicators
 
-        edges = np.array(edges)
+        edges = np.column_stack([gt_nodes, pred_nodes, weights])
+        gt_nodes_size = len(np.unique(gt_nodes))
+        pred_nodes_size = len(np.unique(pred_nodes))
         cost_matrix = cost_matrix_creator.create(edges, gt_nodes_size, pred_nodes_size)
-        matched_i, matched_j = min_weight_full_bipartite_matching(
+
+        gt_matched_nodes, pred_matched_nodes = min_weight_full_bipartite_matching(
             csr_matrix(cost_matrix)
         )
 
+        gt_node_to_pixel_index = np.unique(gt_pixels_index)
+
         # compute tp indicator map
         tp_indicators = np.zeros(map_shape, dtype=bool)
-        for i, j in zip(matched_i, matched_j):
-            if i >= gt_nodes_size or j >= pred_nodes_size:
-                continue
-            pix = gt_node_to_pix[i]
-            tp_indicators[gt_node_to_pix[i]] = gt_map[pix]
+
+        inliers_mask = (gt_matched_nodes < gt_nodes_size) & (
+            pred_matched_nodes < pred_nodes_size
+        )
+        inlier_gt_nodes = gt_matched_nodes[inliers_mask]
+        inlier_pixels = gt_pixels[gt_node_to_pixel_index[inlier_gt_nodes]]
+        y, x = inlier_pixels[:, 0], inlier_pixels[:, 1]
+        tp_indicators[y, x] = True
 
         return tp_indicators
-
-    @staticmethod
-    def create_radius_mask(
-        height: int, width: int, center_y: int, center_x: int, radius: int
-    ) -> ArrayNxM[np.float]:
-        y, x = np.ogrid[-center_y : height - center_y, -center_x : width - center_x]
-        return x * x + y * y <= radius * radius
