@@ -14,7 +14,9 @@
 
 import numpy as np
 
-from src.typing import ArrayNx3, ArrayNxN
+from scipy.sparse import dok_matrix
+
+from src.typing import ArrayNx3
 
 
 class CostMatrixCreator:
@@ -24,11 +26,11 @@ class CostMatrixCreator:
 
     def create(
         self, edges: ArrayNx3[float], first_part_size: int, second_part_size: int
-    ) -> ArrayNxN[float]:
+    ) -> dok_matrix:
         matrix_size = first_part_size + second_part_size
         min_part_size = min(first_part_size, second_part_size)
         max_part_size = max(first_part_size, second_part_size)
-        input_matrix = np.zeros((matrix_size, matrix_size))
+        cost_matrix = dok_matrix((matrix_size, matrix_size))
 
         first_part_outlier_degree = max(
             0, min(self.outlier_degree, first_part_size - 1)
@@ -45,7 +47,7 @@ class CostMatrixCreator:
         end_nodes = edges[:, 1].astype(int)
         weights = edges[:, 2]
 
-        input_matrix[start_nodes, end_nodes] = weights
+        cost_matrix[start_nodes, end_nodes] = weights
 
         # add outlier edges for first part excluding diagonal
         for i in np.arange(first_part_size):
@@ -53,7 +55,7 @@ class CostMatrixCreator:
                 first_part_size - 1, first_part_outlier_degree, replace=False
             )
             j[j >= i] += 1
-            input_matrix[i, second_part_size + j] = self.outlier_cost
+            cost_matrix[i, second_part_size + j] = self.outlier_cost
 
         # add outlier edges for second part excluding diagonal
         for j in np.arange(second_part_size):
@@ -61,7 +63,7 @@ class CostMatrixCreator:
                 second_part_size - 1, second_part_outlier_degree, replace=False
             )
             i[i >= j] += 1
-            input_matrix[first_part_size + i, j] = self.outlier_cost
+            cost_matrix[first_part_size + i, j] = self.outlier_cost
 
         # add outlier-to-outlier edges
         for i in np.arange(max_part_size):
@@ -69,11 +71,11 @@ class CostMatrixCreator:
                 min_part_size, outlier_to_outlier_degree, replace=False
             )
             if first_part_size < second_part_size:
-                input_matrix[
+                cost_matrix[
                     first_part_size + i, second_part_size + j
                 ] = self.outlier_cost
             else:
-                input_matrix[
+                cost_matrix[
                     first_part_size + j, second_part_size + i
                 ] = self.outlier_cost
 
@@ -83,11 +85,11 @@ class CostMatrixCreator:
         upper_overlay_start_nodes = first_part_size + np.arange(second_part_size)
         upper_overlay_end_nodes = np.arange(second_part_size)
 
-        input_matrix[
+        cost_matrix[
             lower_overlay_start_nodes, lower_overlay_end_nodes
         ] = self.outlier_cost
-        input_matrix[
+        cost_matrix[
             upper_overlay_start_nodes, upper_overlay_end_nodes
         ] = self.outlier_cost
 
-        return input_matrix
+        return cost_matrix

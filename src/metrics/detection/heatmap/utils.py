@@ -14,19 +14,20 @@
 
 import numpy as np
 
+from scipy.sparse import dok_matrix
 from skimage.draw import line_nd
 from typing import List, Sized
 
 from src.typing import ArrayNx4
 
 
-def equally_sized(batches: List[Sized]):
+def equally_sized(batches: List[Sized]) -> bool:
     expected_size = len(batches[0])
     return all(expected_size == len(batch) for batch in batches)
 
 
-def rasterize(lines: ArrayNx4[float], height: int, width: int):
-    bitmap = np.zeros((height, width), dtype=bool)
+def rasterize(lines: ArrayNx4[float], height: int, width: int) -> dok_matrix:
+    bitmap = dok_matrix((height, width), dtype=bool)
     x_index = [0, 2]
     y_index = [1, 3]
 

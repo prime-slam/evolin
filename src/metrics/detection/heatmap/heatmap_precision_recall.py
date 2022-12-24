@@ -71,9 +71,9 @@ class HeatmapPrecisionRecall:
                 gt_map = rasterize(gt_lines, height, width)
                 pred_map = rasterize(pred_lines[scores > threshold], height, width)
                 tp_indicators_map = self.indicator.indicate(gt_map, pred_map)
-                tp_sum[i] += np.count_nonzero(tp_indicators_map)
-                fp_sum[i] += np.count_nonzero(pred_map) - tp_sum[i]
-                gt_size_sum[i] += np.count_nonzero(gt_map)
+                tp_sum[i] += tp_indicators_map.nnz
+                fp_sum[i] += pred_map.nnz - tp_sum[i]
+                gt_size_sum[i] += gt_map.nnz
 
         Parallel(n_jobs=os.cpu_count(), require="sharedmem")(
             delayed(add_statistics)(pred_lines, gt_lines, scores, height, width)

@@ -14,7 +14,7 @@
 
 import numpy as np
 
-from scipy.sparse import csr_matrix
+from scipy.sparse import csr_matrix, dok_matrix
 from scipy.sparse.csgraph import min_weight_full_bipartite_matching
 from scipy.spatial import distance_matrix
 from scipy.stats import rankdata
@@ -22,16 +22,13 @@ from scipy.stats import rankdata
 from src.metrics.detection.heatmap.assignment_problem.cost_matrix_creator import (
     CostMatrixCreator,
 )
-from src.typing import ArrayNxM
 
 
 class HeatmapTPIndicator:
     def __init__(self, max_dist_diagonal_ratio: float = 0.01):
         self.max_dist_diag_ratio = max_dist_diagonal_ratio
 
-    def indicate(
-        self, gt_map: ArrayNxM[bool], pred_map: ArrayNxM[bool]
-    ) -> ArrayNxM[bool]:
+    def indicate(self, gt_map: dok_matrix, pred_map: dok_matrix) -> dok_matrix:
         if gt_map.shape != pred_map.shape:
             raise ValueError(
                 "The gt heatmap and the predicted heatmap must have the same shape"
@@ -54,7 +51,7 @@ class HeatmapTPIndicator:
             pixel_distances[gt_pixels_index, pred_pixels_index], epsilon
         )
 
-        tp_indicators = np.zeros(map_shape, dtype=bool)
+        tp_indicators = dok_matrix(map_shape, dtype=bool)
 
         if len(weights) == 0:
             return tp_indicators
@@ -67,12 +64,9 @@ class HeatmapTPIndicator:
         gt_matched_nodes, pred_matched_nodes = min_weight_full_bipartite_matching(
             csr_matrix(cost_matrix)
         )
-
         gt_node_to_pixel_index = np.unique(gt_pixels_index)
 
         # compute tp indicator map
-        tp_indicators = np.zeros(map_shape, dtype=bool)
-
         inliers_mask = (gt_matched_nodes < gt_nodes_size) & (
             pred_matched_nodes < pred_nodes_size
         )
