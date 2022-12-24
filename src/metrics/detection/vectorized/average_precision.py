@@ -41,9 +41,9 @@ class AveragePrecision:
 
     def calculate(
         self,
-        pred_lines_batch: List[ArrayNx4[np.float]],
-        gt_lines_batch: List[ArrayNx4[np.float]],
-        line_scores_batch: List[ArrayN[np.float]],
+        pred_lines_batch: List[ArrayNx4[float]],
+        gt_lines_batch: List[ArrayNx4[float]],
+        line_scores_batch: List[ArrayN[float]],
     ) -> float:
         """
         Calculates Average Precision

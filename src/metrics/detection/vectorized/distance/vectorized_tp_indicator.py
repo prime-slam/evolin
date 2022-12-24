@@ -26,8 +26,8 @@ class VectorizedTPIndicator:
         self.distance_threshold = distance_threshold
 
     def indicate(
-        self, pred_lines: ArrayNx4[np.float], gt_lines: ArrayNx4[np.float]
-    ) -> ArrayN[np.bool]:
+        self, pred_lines: ArrayNx4[float], gt_lines: ArrayNx4[float]
+    ) -> ArrayN[bool]:
         if (
             np.max(pred_lines) > EVALUATION_RESOLUTION
             or np.max(gt_lines) > EVALUATION_RESOLUTION

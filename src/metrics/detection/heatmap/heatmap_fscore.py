@@ -36,12 +36,12 @@ class HeatmapFScore:
 
     def calculate(
         self,
-        pred_lines_batch: List[ArrayNx4[np.float]],
-        gt_lines_batch: List[ArrayNx4[np.float]],
-        scores_batch: List[ArrayNx4[np.float]],
-        heights_batch: ArrayN[np.int],
-        widths_batch: ArrayN[np.int],
-        thresholds: ArrayN[np.int],
+        pred_lines_batch: List[ArrayNx4[float]],
+        gt_lines_batch: List[ArrayNx4[float]],
+        scores_batch: List[ArrayNx4[float]],
+        heights_batch: ArrayN[int],
+        widths_batch: ArrayN[int],
+        thresholds: ArrayN[int],
     ):
         recall, precision = self.precision_recall_calculator.calculate(
             pred_lines_batch,
@@ -58,12 +58,12 @@ class HeatmapFScore:
 
 
 def heatmap_fscore(
-    pred_lines_batch: List[ArrayNx4[np.float]],
-    gt_lines_batch: List[ArrayNx4[np.float]],
-    line_scores_batch: List[ArrayNx4[np.float]],
-    heights_batch: ArrayN[np.int],
-    widths_batch: ArrayN[np.int],
-    thresholds: ArrayN[np.int],
+    pred_lines_batch: List[ArrayNx4[float]],
+    gt_lines_batch: List[ArrayNx4[float]],
+    line_scores_batch: List[ArrayNx4[float]],
+    heights_batch: ArrayN[int],
+    widths_batch: ArrayN[int],
+    thresholds: ArrayN[int],
 ):
     """
     Calculates Heatmap F-Score (F^H)

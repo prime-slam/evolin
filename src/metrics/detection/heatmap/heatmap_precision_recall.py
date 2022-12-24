@@ -40,13 +40,13 @@ class HeatmapPrecisionRecall:
 
     def calculate(
         self,
-        pred_lines_batch: List[ArrayNx4[np.float]],
-        gt_lines_batch: List[ArrayNx4[np.float]],
-        scores_batch: List[ArrayNx4[np.float]],
-        heights_batch: ArrayN[np.int],
-        widths_batch: ArrayN[np.int],
-        thresholds: ArrayN[np.int],
-    ) -> Tuple[ArrayN[np.float], ArrayN[np.float]]:
+        pred_lines_batch: List[ArrayNx4[float]],
+        gt_lines_batch: List[ArrayNx4[float]],
+        scores_batch: List[ArrayNx4[float]],
+        heights_batch: ArrayN[int],
+        widths_batch: ArrayN[int],
+        thresholds: ArrayN[int],
+    ) -> Tuple[ArrayN[float], ArrayN[float]]:
         if not equally_sized(
             [
                 pred_lines_batch,

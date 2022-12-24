@@ -23,8 +23,8 @@ class CostMatrixCreator:
         self.outlier_degree = outlier_degree
 
     def create(
-        self, edges: ArrayNx3[np.float], first_part_size: int, second_part_size: int
-    ) -> ArrayNxN[np.float]:
+        self, edges: ArrayNx3[float], first_part_size: int, second_part_size: int
+    ) -> ArrayNxN[float]:
         matrix_size = first_part_size + second_part_size
         min_part_size = min(first_part_size, second_part_size)
         max_part_size = max(first_part_size, second_part_size)

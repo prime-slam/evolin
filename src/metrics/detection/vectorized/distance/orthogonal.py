@@ -25,8 +25,8 @@ class OrthogonalDistance(Distance):
         self.min_overlap = min_overlap
 
     def calculate(
-        self, first_lines: ArrayNx2x2[np.float], second_lines: ArrayNx2x2[np.float]
-    ) -> ArrayNxM[np.float]:
+        self, first_lines: ArrayNx2x2[float], second_lines: ArrayNx2x2[float]
+    ) -> ArrayNxM[float]:
         first_lines_number, second_lines_number = len(first_lines), len(second_lines)
 
         # Average Orthogonal Line Distance calculation
@@ -82,8 +82,8 @@ class OrthogonalDistance(Distance):
 
     @staticmethod
     def __calculate_orthogonal_distance(
-        lines: ArrayNx2x2[np.float], points: ArrayNx2[np.float]
-    ) -> Tuple[ArrayNxM[np.float], ArrayNxM[np.float]]:
+        lines: ArrayNx2x2[float], points: ArrayNx2[float]
+    ) -> Tuple[ArrayNxM[float], ArrayNxM[float]]:
         # Using line parametrisation endpoint1 + offset (endpoint2 - endpoint1)
 
         direction = (lines[:, 1] - lines[:, 0])[:, np.newaxis]
@@ -98,8 +98,8 @@ class OrthogonalDistance(Distance):
 
     @staticmethod
     def __calculate_endpoints_overlap(
-        endpoints_offsets: ArrayNxMx2[np.float],
-    ) -> ArrayNxM[np.float]:
+        endpoints_offsets: ArrayNxMx2[float],
+    ) -> ArrayNxM[float]:
         # Overlap of a projection of a line on another line calculation
         # Original segments have endpoints with offsets 0 and 1 in the line parametrization
         endpoints_offsets = np.sort(endpoints_offsets, axis=-1)

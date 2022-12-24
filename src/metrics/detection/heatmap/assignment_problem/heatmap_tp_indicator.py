@@ -30,8 +30,8 @@ class HeatmapTPIndicator:
         self.max_dist_diag_ratio = max_dist_diagonal_ratio
 
     def indicate(
-        self, gt_map: ArrayNxM[np.bool], pred_map: ArrayNxM[np.bool]
-    ) -> ArrayNxM[np.bool]:
+        self, gt_map: ArrayNxM[bool], pred_map: ArrayNxM[bool]
+    ) -> ArrayNxM[bool]:
         if gt_map.shape != pred_map.shape:
             raise ValueError(
                 "The gt heatmap and the predicted heatmap must have the same shape"

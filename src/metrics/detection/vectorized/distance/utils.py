@@ -17,5 +17,5 @@ import numpy as np
 from src.typing import ArrayNx2x2
 
 
-def contains_zero_length_line(lines: ArrayNx2x2[np.float]) -> bool:
+def contains_zero_length_line(lines: ArrayNx2x2[float]) -> bool:
     return np.any(np.logical_and.reduce(lines[..., 0, :] == lines[..., 1, :], axis=-1))

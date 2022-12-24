@@ -25,7 +25,7 @@ def equally_sized(batches: List[Sized]):
     return all(expected_size == len(batch) for batch in batches)
 
 
-def rasterize(lines: ArrayNx4[np.float], height: int, width: int):
+def rasterize(lines: ArrayNx4[float], height: int, width: int):
     bitmap = np.zeros((height, width), dtype=bool)
     x_index = [0, 2]
     y_index = [1, 3]
