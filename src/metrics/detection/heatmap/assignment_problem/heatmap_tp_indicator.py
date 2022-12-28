@@ -14,14 +14,10 @@
 
 import numpy as np
 
-from scipy.sparse import csr_matrix, dok_matrix
-from scipy.sparse.csgraph import min_weight_full_bipartite_matching
+from scipy.optimize import linear_sum_assignment
+from scipy.sparse import dok_matrix
 from scipy.spatial import distance_matrix
 from scipy.stats import rankdata
-
-from src.metrics.detection.heatmap.assignment_problem.cost_matrix_creator import (
-    CostMatrixCreator,
-)
 
 
 class HeatmapTPIndicator:
@@ -36,7 +32,7 @@ class HeatmapTPIndicator:
         map_shape = gt_map.shape
         diagonal = np.sqrt(sum(map(lambda x: x**2, map_shape)))
         outlier_cost = diagonal
-        cost_matrix_creator = CostMatrixCreator(outlier_cost)
+
         max_dist = np.ceil(self.max_dist_diag_ratio * diagonal).astype(int)
         epsilon = 1e-5
 
@@ -56,20 +52,17 @@ class HeatmapTPIndicator:
         if len(weights) == 0:
             return tp_indicators
 
-        edges = np.column_stack([gt_nodes, pred_nodes, weights])
         gt_nodes_size = len(np.unique(gt_nodes))
         pred_nodes_size = len(np.unique(pred_nodes))
-        cost_matrix = cost_matrix_creator.create(edges, gt_nodes_size, pred_nodes_size)
 
-        gt_matched_nodes, pred_matched_nodes = min_weight_full_bipartite_matching(
-            csr_matrix(cost_matrix)
-        )
+        cost_matrix = np.full((gt_nodes_size, pred_nodes_size), outlier_cost)
+        cost_matrix[gt_nodes, pred_nodes] = weights
+
+        gt_matched_nodes, pred_matched_nodes = linear_sum_assignment(cost_matrix)
         gt_node_to_pixel_index = np.unique(gt_pixels_index)
 
         # compute tp indicator map
-        inliers_mask = (gt_matched_nodes < gt_nodes_size) & (
-            pred_matched_nodes < pred_nodes_size
-        )
+        inliers_mask = cost_matrix[gt_matched_nodes, pred_matched_nodes] != outlier_cost
         inlier_gt_nodes = gt_matched_nodes[inliers_mask]
         inlier_pixels = gt_pixels[gt_node_to_pixel_index[inlier_gt_nodes]]
         y, x = inlier_pixels[:, 0], inlier_pixels[:, 1]
