@@ -34,7 +34,6 @@ class HeatmapTPIndicator:
         outlier_cost = diagonal
 
         max_dist = np.ceil(self.max_dist_diag_ratio * diagonal).astype(int)
-        epsilon = 1e-5
 
         gt_pixels = np.column_stack(gt_map.nonzero())
         pred_pixels = np.column_stack(pred_map.nonzero())
@@ -43,9 +42,7 @@ class HeatmapTPIndicator:
         gt_pixels_index, pred_pixels_index = (pixel_distances <= max_dist).nonzero()
         gt_nodes = rankdata(gt_pixels_index, method="dense") - 1
         pred_nodes = rankdata(pred_pixels_index, method="dense") - 1
-        weights = np.maximum(
-            pixel_distances[gt_pixels_index, pred_pixels_index], epsilon
-        )
+        weights = pixel_distances[gt_pixels_index, pred_pixels_index]
 
         tp_indicators = dok_matrix(map_shape, dtype=bool)
 
