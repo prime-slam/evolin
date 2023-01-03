@@ -22,6 +22,6 @@ from src.typing import ArrayNx2x2, ArrayNxM
 class Distance(ABC):
     @abstractmethod
     def calculate(
-        self, ffirst_lines: ArrayNx2x2[np.float], second_lines: ArrayNx2x2[np.float]
-    ) -> ArrayNxM[np.float]:
+        self, first_lines: ArrayNx2x2[float], second_lines: ArrayNx2x2[float]
+    ) -> ArrayNxM[float]:
         pass

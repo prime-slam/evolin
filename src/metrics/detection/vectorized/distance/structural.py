@@ -20,8 +20,8 @@ from src.typing import ArrayNx2x2, ArrayNxM
 
 class StructuralDistance(Distance):
     def calculate(
-        self, first_lines: ArrayNx2x2[np.float], second_lines: ArrayNx2x2[np.float]
-    ) -> ArrayNxM[np.float]:
+        self, first_lines: ArrayNx2x2[float], second_lines: ArrayNx2x2[float]
+    ) -> ArrayNxM[float]:
         endpoint_distances = (
             (first_lines[:, np.newaxis, :, np.newaxis] - second_lines[:, np.newaxis])
             ** 2

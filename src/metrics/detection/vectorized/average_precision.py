@@ -17,7 +17,9 @@ import numpy as np
 from typing import List
 
 from src.typing import ArrayNx4, ArrayN
-from src.metrics.detection.vectorized.distance.tp_indicator import TPIndicator
+from src.metrics.detection.vectorized.distance.vectorized_tp_indicator import (
+    VectorizedTPIndicator,
+)
 
 __all__ = ["AveragePrecision"]
 
@@ -30,7 +32,7 @@ class AveragePrecision:
 
     def __init__(
         self,
-        tp_indicator: TPIndicator,
+        tp_indicator: VectorizedTPIndicator,
     ):
         """
         :param tp_indicator: TPIndicator object that indicates whether line is true positive or not
@@ -39,9 +41,9 @@ class AveragePrecision:
 
     def calculate(
         self,
-        pred_lines_batch: List[ArrayNx4[np.float]],
-        gt_lines_batch: List[ArrayNx4[np.float]],
-        line_scores_batch: List[ArrayN[np.float]],
+        pred_lines_batch: List[ArrayNx4[float]],
+        gt_lines_batch: List[ArrayNx4[float]],
+        line_scores_batch: List[ArrayN[float]],
     ) -> float:
         """
         Calculates Average Precision

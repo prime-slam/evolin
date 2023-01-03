@@ -1,5 +1,8 @@
 black
+joblib
 numpy
 pre-commit
 pytest
+scikit-image
 scipy
+tqdm

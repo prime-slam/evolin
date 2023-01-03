@@ -20,14 +20,14 @@ from src.metrics.detection.vectorized.distance.utils import contains_zero_length
 from src.typing import ArrayNx4, ArrayN
 
 
-class TPIndicator:
+class VectorizedTPIndicator:
     def __init__(self, distance: Distance, distance_threshold: float):
         self.distance = distance
         self.distance_threshold = distance_threshold
 
     def indicate(
-        self, pred_lines: ArrayNx4[np.float], gt_lines: ArrayNx4[np.float]
-    ) -> ArrayN[np.bool]:
+        self, pred_lines: ArrayNx4[float], gt_lines: ArrayNx4[float]
+    ) -> ArrayN[bool]:
         if (
             np.max(pred_lines) > EVALUATION_RESOLUTION
             or np.max(gt_lines) > EVALUATION_RESOLUTION
