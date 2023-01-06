@@ -12,27 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
-
 from typing import List
 
 from src.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
 from src.metrics.detection.vectorized.distance.structural import StructuralDistance
-from src.metrics.detection.vectorized.precision_recall_curve import PrecisionRecallCurve
-from src.typing import ArrayNx4, ArrayN
+from src.metrics.detection.vectorized.precision_recall import PrecisionRecall
+from src.typing import ArrayNx4
 from src.metrics.detection.vectorized.tp_indicator import (
     VectorizedTPIndicator,
 )
 
-__all__ = [
-    "structural_average_precision",
-    "orthogonal_average_precision",
-]
+__all__ = ["orthogonal_fscore", "structural_fscore"]
 
 
-class AveragePrecision:
+class FScore:
     """
-    Class that calculates the Average Precision
+    Class that calculates F-Score value
     over batches of predicted and ground truth lines
     """
 
@@ -44,77 +39,76 @@ class AveragePrecision:
         :param tp_indicator: VectorizedTPIndicator object that indicates
         whether line is true positive or not
         """
-        self.tp_indicator = tp_indicator
+        self.precision_recall = PrecisionRecall(tp_indicator)
 
     def calculate(
         self,
         pred_lines_batch: List[ArrayNx4[float]],
         gt_lines_batch: List[ArrayNx4[float]],
-        line_scores_batch: List[ArrayN[float]],
     ) -> float:
         """
-        Calculates Average Precision
+        Calculates F-Score
         :param pred_lines_batch: list of predicted lines for each image
         :param gt_lines_batch: list of ground truth lines for each image
-        :param line_scores_batch: list of predicted lines scores for each image
-        :return: Average Precision value
+        :return: F-Score value
         """
-        precision, recall = PrecisionRecallCurve(self.tp_indicator).calculate(
-            pred_lines_batch, gt_lines_batch, line_scores_batch
+
+        precision, recall = self.precision_recall.calculate(
+            pred_lines_batch, gt_lines_batch
         )
-        # AP is the area under the PR Curve
-        return np.trapz(x=recall, y=precision)
+
+        fscore = (
+            2 * precision * recall / (precision + recall)
+            if precision * recall != 0
+            else 0
+        )
+
+        return fscore
 
 
-def orthogonal_average_precision(
+def orthogonal_fscore(
     pred_lines_batch: List[ArrayNx4[float]],
     gt_lines_batch: List[ArrayNx4[float]],
-    line_scores_batch: List[ArrayN[float]],
     distance_threshold: float = 5,
     min_overlap: float = 0.5,
 ) -> float:
     """
-    Calculates Orthogonal Average Precision (OAP)
+    Calculates orthogonal F-Score
     :param pred_lines_batch: list of predicted lines for each image
     :param gt_lines_batch: list of ground truth lines for each image
-    :param line_scores_batch: list of predicted lines scores for each image
     :param distance_threshold: threshold in pixels within which the line is considered to be true positive
     :param min_overlap: minimal overlap of the projection of one line onto another line, averaged over two lines;
     lines with a value greater than the threshold to be true positive
-    :return: Orthogonal Average Precision value
+    :return: orthogonal F-Score value
     """
     orthogonal_tp_indicator = VectorizedTPIndicator(
         OrthogonalDistance(min_overlap), distance_threshold
     )
 
-    return AveragePrecision(tp_indicator=orthogonal_tp_indicator).calculate(
+    return FScore(tp_indicator=orthogonal_tp_indicator).calculate(
         pred_lines_batch,
         gt_lines_batch,
-        line_scores_batch,
     )
 
 
-def structural_average_precision(
+def structural_fscore(
     pred_lines_batch: List[ArrayNx4[float]],
     gt_lines_batch: List[ArrayNx4[float]],
-    line_scores_batch: List[ArrayN[float]],
     distance_threshold: float = 5,
 ) -> float:
     """
-    Calculates Structural Average Precision (SAP)
+    Calculates structural F-Score
     :param pred_lines_batch: list of predicted lines for each image
     :param gt_lines_batch: list of ground truth lines for each image
-    :param line_scores_batch: list of predicted lines scores for each image
     :param distance_threshold: threshold in pixels within which the line is considered to be true positive
-    :return: Structural Average Precision value
+    :return: structural F-Score value
     """
 
     structural_tp_indicator = VectorizedTPIndicator(
         StructuralDistance(), distance_threshold
     )
 
-    return AveragePrecision(tp_indicator=structural_tp_indicator).calculate(
+    return FScore(tp_indicator=structural_tp_indicator).calculate(
         pred_lines_batch,
         gt_lines_batch,
-        line_scores_batch,
     )

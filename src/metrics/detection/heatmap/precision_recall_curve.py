@@ -19,39 +19,48 @@ from joblib import Parallel, delayed
 from tqdm.contrib import tzip
 from typing import List, Tuple
 
-from src.metrics.detection.heatmap.assignment_problem.heatmap_tp_indicator import (
+from src.metrics.detection.heatmap.tp_indicator import (
     HeatmapTPIndicator,
 )
 from src.metrics.detection.heatmap.utils import equally_sized, rasterize
 from src.typing import ArrayNx4, ArrayN
 
-__all__ = ["HeatmapPrecisionRecall"]
+__all__ = ["heatmap_precision_recall_curve"]
 
 
-class HeatmapPrecisionRecall:
+class PrecisionRecallCurve:
     """
-    Class that calculates Heatmap Precision and Recall
+    Class that calculates precision-recall pairs for different score thresholds
     over batches of predicted and ground truth lines
     """
 
     def __init__(self):
-        self.indicator = HeatmapTPIndicator()
-        self.epsilon = 1e-9
+        self.tp_indicator = HeatmapTPIndicator()
 
     def calculate(
         self,
         pred_lines_batch: List[ArrayNx4[float]],
         gt_lines_batch: List[ArrayNx4[float]],
-        scores_batch: List[ArrayNx4[float]],
+        line_scores_batch: List[ArrayNx4[float]],
         heights_batch: ArrayN[int],
         widths_batch: ArrayN[int],
         thresholds: ArrayN[int],
     ) -> Tuple[ArrayN[float], ArrayN[float]]:
+        """
+        Calculates the Precision-Recall Curve
+        :param pred_lines_batch: list of predicted lines for each image
+        :param gt_lines_batch: list of ground truth lines for each image
+        :param line_scores_batch: list of predicted lines scores for each image
+        :param heights_batch: array of heights of each image
+        :param widths_batch: array of widths of each image
+        :param thresholds: array of line scores thresholds to filter predicted lines
+        :return: lists of x (recall) and y (precision) coordinates
+        """
         if not equally_sized(
             [
                 pred_lines_batch,
                 gt_lines_batch,
-                scores_batch,
+                line_scores_batch,
                 heights_batch,
                 widths_batch,
             ]
@@ -70,7 +79,7 @@ class HeatmapPrecisionRecall:
             for i, threshold in enumerate(thresholds):
                 gt_map = rasterize(gt_lines, height, width)
                 pred_map = rasterize(pred_lines[scores > threshold], height, width)
-                tp_indicators_map = self.indicator.indicate(gt_map, pred_map)
+                tp_indicators_map = self.tp_indicator.indicate(gt_map, pred_map)
                 tp_sum[i] += tp_indicators_map.nnz
                 fp_sum[i] += pred_map.nnz - tp_sum[i]
                 gt_size_sum[i] += gt_map.nnz
@@ -80,13 +89,47 @@ class HeatmapPrecisionRecall:
             for pred_lines, gt_lines, scores, height, width in tzip(
                 pred_lines_batch,
                 gt_lines_batch,
-                scores_batch,
+                line_scores_batch,
                 heights_batch,
                 widths_batch,
             )
         )
 
         recall = tp_sum / gt_size_sum
-        precision = tp_sum / np.maximum(tp_sum + fp_sum, self.epsilon)
+        precision = np.zeros(np.size(tp_sum), dtype=float)
+        nonzero_mask = tp_sum + fp_sum != 0
+        precision[nonzero_mask] = tp_sum[nonzero_mask] / (
+            tp_sum[nonzero_mask] + fp_sum[nonzero_mask]
+        )
 
-        return precision, recall
+        threshold_decreasing_order = np.argsort(-thresholds)
+        return precision[threshold_decreasing_order], recall[threshold_decreasing_order]
+
+
+def heatmap_precision_recall_curve(
+    pred_lines_batch: List[ArrayNx4[float]],
+    gt_lines_batch: List[ArrayNx4[float]],
+    line_scores_batch: List[ArrayNx4[float]],
+    heights_batch: ArrayN[int],
+    widths_batch: ArrayN[int],
+    thresholds: ArrayN[int],
+) -> Tuple[ArrayN[float], ArrayN[float]]:
+    """
+    Calculates the Precision-Recall Curve
+    :param pred_lines_batch: list of predicted lines for each image
+    :param gt_lines_batch: list of ground truth lines for each image
+    :param line_scores_batch: list of predicted lines scores for each image
+    :param heights_batch: array of heights of each image
+    :param widths_batch: array of widths of each image
+    :param thresholds: array of line scores thresholds to filter predicted lines
+    :return: lists of x (recall) and y (precision) coordinates
+    """
+
+    return PrecisionRecallCurve().calculate(
+        pred_lines_batch,
+        gt_lines_batch,
+        line_scores_batch,
+        heights_batch,
+        widths_batch,
+        thresholds,
+    )

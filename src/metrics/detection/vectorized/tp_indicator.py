@@ -26,7 +26,10 @@ class VectorizedTPIndicator:
         self.distance_threshold = distance_threshold
 
     def indicate(
-        self, pred_lines: ArrayNx4[float], gt_lines: ArrayNx4[float]
+        self,
+        pred_lines: ArrayNx4[float],
+        gt_lines: ArrayNx4[float],
+        sort_predictions_by_distance: bool = False,
     ) -> ArrayN[bool]:
         if (
             np.max(pred_lines) > EVALUATION_RESOLUTION
@@ -54,7 +57,7 @@ class VectorizedTPIndicator:
 
         distances = self.distance.calculate(pred_lines, gt_lines)
 
-        closest_gt_lines_indices = np.argmin(distances, 1)
+        closest_gt_lines_indices = np.argmin(distances, axis=1)
         closest_gt_lines_distances = distances[
             np.arange(distances.shape[0]), closest_gt_lines_indices
         ]
@@ -63,11 +66,18 @@ class VectorizedTPIndicator:
         hit = np.zeros(len(gt_lines), bool)
         tp = np.zeros(predictions_number, bool)
 
-        for pred_line in range(predictions_number):
+        prediction_indices = (
+            np.argsort(closest_gt_lines_distances)
+            if sort_predictions_by_distance
+            else np.arange(predictions_number)
+        )
+
+        for pred_line in prediction_indices:
             if (
                 closest_gt_lines_distances[pred_line] < self.distance_threshold
                 and not hit[closest_gt_lines_indices[pred_line]]
             ):
                 hit[closest_gt_lines_indices[pred_line]] = True
                 tp[pred_line] = True
+
         return tp

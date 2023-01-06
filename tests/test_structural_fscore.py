@@ -15,32 +15,29 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.heatmap.utils import rasterize
+from src.metrics.detection.vectorized import structural_fscore
 
 
 @pytest.mark.parametrize(
-    "lines, height, width, expected_bitmap",
+    "pred_lines, gt_lines, expected",
     [
         (
-            np.array([[5, 0, 0, 5], [0, 0, 5, 5]]),
-            5,
-            5,
-            np.diag(np.full(5, True)) + np.flip(np.diag(np.full(5, True)), axis=1),
+            [np.array([[1, 0, 2, 0], [2, 0, 1, 0], [5, 9, 11, 13]])],
+            [np.array([[1, 0, 2, 0], [5, 10, 11, 12]])],
+            0.7999,
         ),
+        ([np.array([[1, 0, 2, 0]])], [np.array([[1, 2, 2, 2]])], 0),
         (
-            np.array([[0, 0, 15, 0]]),
-            3,
-            5,
-            np.array([[True] * 5, [False] * 5, [False] * 5]),
-        ),
-        (
-            np.array([]),
-            5,
-            5,
-            np.zeros((5, 5), bool),
+            [
+                np.array([[1, 0, 2, 0], [2, 0, 1, 0], [5, 9, 11, 13]]),
+                np.array([[1, 0, 2, 0]]),
+            ],
+            [np.array([[1, 0, 2, 0], [5, 10, 11, 12]]), np.array([[1, 2, 2, 2]])],
+            0.5714,
         ),
     ],
 )
-def test_rasterize(lines, height, width, expected_bitmap):
-    actual_bitmap = rasterize(lines, height, width)
-    assert (actual_bitmap == expected_bitmap).all()
+def test_structural_fscore(pred_lines, gt_lines, expected):
+    actual = structural_fscore(pred_lines, gt_lines)
+    eps = 0.001
+    assert np.abs(actual - expected) < eps

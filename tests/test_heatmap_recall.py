@@ -15,47 +15,51 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.heatmap.heatmap_average_precision import (
-    heatmap_average_precision,
-)
+from src.metrics.detection.heatmap import heatmap_recall
 
 
 @pytest.mark.parametrize(
     "pred_lines_batch, "
     "gt_lines_batch, "
-    "scores_batch, "
     "heights_batch, "
     "widths_batch, "
-    "thresholds, "
     "expected_aph",
     [
         (
             [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])],
             [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])],
-            [np.array([0.1, 1])],
             np.array([5]),
             np.array([5]),
-            np.array([0.0, 0.2]),
-            0.444,
-        )
+            1.0,
+        ),
+        (
+            [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])],
+            [np.array([[5, 0, 0, 5]])],
+            np.array([5]),
+            np.array([5]),
+            1.0,
+        ),
+        (
+            [np.array([])],
+            [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])],
+            np.array([5]),
+            np.array([5]),
+            0.0,
+        ),
     ],
 )
-def test_average_heatmap_precision(
+def test_heatmap_recall(
     pred_lines_batch,
     gt_lines_batch,
-    scores_batch,
     heights_batch,
     widths_batch,
-    thresholds,
     expected_aph,
 ):
     epsilon = 1e-3
-    actual_aph = heatmap_average_precision(
+    actual_aph = heatmap_recall(
         pred_lines_batch,
         gt_lines_batch,
-        scores_batch,
         heights_batch,
         widths_batch,
-        thresholds,
     )
     assert np.abs(actual_aph - expected_aph) < epsilon
