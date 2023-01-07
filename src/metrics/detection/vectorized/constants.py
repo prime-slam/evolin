@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["EVALUATION_RESOLUTION"]
+from src.metrics.detection.vectorized.distance.distance_factory import DistanceName
+
+__all__ = ["EVALUATION_RESOLUTION", "DISTANCE_NAMES"]
 
 # To eliminate the influence of the image resolution, the detection results
 # and the ground truth lines should be scaled to the 128x128 resolution
 EVALUATION_RESOLUTION = 128
+
+# Comma-separated distance names
+DISTANCE_NAMES = DistanceName.to_string(", ")

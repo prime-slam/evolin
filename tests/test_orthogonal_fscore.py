@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.vectorized import orthogonal_fscore
+from src.metrics.detection.vectorized import vectorized_fscore
 
 
 @pytest.mark.parametrize(
@@ -43,6 +43,6 @@ from src.metrics.detection.vectorized import orthogonal_fscore
     ],
 )
 def test_orthogonal_fscore(pred_lines, gt_lines, expected):
-    actual = orthogonal_fscore(pred_lines, gt_lines)
+    actual = vectorized_fscore(pred_lines, gt_lines, distance="orthogonal")
     eps = 0.001
     assert np.abs(actual - expected) < eps

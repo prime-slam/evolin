@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.vectorized import orthogonal_recall
+from src.metrics.detection.vectorized import vectorized_recall
 
 
 @pytest.mark.parametrize(
@@ -43,6 +43,6 @@ from src.metrics.detection.vectorized import orthogonal_recall
     ],
 )
 def test_orthogonal_recall(pred_lines, gt_lines, expected):
-    actual = orthogonal_recall(pred_lines, gt_lines)
+    actual = vectorized_recall(pred_lines, gt_lines, distance="orthogonal")
     eps = 0.001
     assert np.abs(actual - expected) < eps

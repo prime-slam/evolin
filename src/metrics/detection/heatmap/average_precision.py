@@ -52,4 +52,5 @@ def heatmap_average_precision(
         thresholds,
     )
 
+    # AP is the area under the PR Curve
     return np.trapz(x=recall, y=precision)

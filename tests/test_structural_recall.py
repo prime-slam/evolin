@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.vectorized import structural_recall
+from src.metrics.detection.vectorized import vectorized_recall
 
 
 @pytest.mark.parametrize(
@@ -38,6 +38,6 @@ from src.metrics.detection.vectorized import structural_recall
     ],
 )
 def test_structural_recall(pred_lines, gt_lines, expected):
-    actual = structural_recall(pred_lines, gt_lines)
+    actual = vectorized_recall(pred_lines, gt_lines, distance="structural")
     eps = 0.001
     assert np.abs(actual - expected) < eps

@@ -14,19 +14,22 @@
 
 import numpy as np
 
-from typing import List
+from typing import List, Union
 
-from src.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
-from src.metrics.detection.vectorized.distance.structural import StructuralDistance
+from src.metrics.detection.vectorized.constants import DISTANCE_NAMES
+from src.metrics.detection.vectorized.distance.distance import Distance
+from src.metrics.detection.vectorized.distance.distance_factory import (
+    DistanceFactory,
+)
 from src.metrics.detection.vectorized.precision_recall_curve import PrecisionRecallCurve
+from src.metrics.detection.vectorized.utils import docstring_arg
 from src.typing import ArrayNx4, ArrayN
 from src.metrics.detection.vectorized.tp_indicator import (
     VectorizedTPIndicator,
 )
 
 __all__ = [
-    "structural_average_precision",
-    "orthogonal_average_precision",
+    "vectorized_average_precision",
 ]
 
 
@@ -66,54 +69,35 @@ class AveragePrecision:
         return np.trapz(x=recall, y=precision)
 
 
-def orthogonal_average_precision(
+@docstring_arg(DISTANCE_NAMES)
+def vectorized_average_precision(
     pred_lines_batch: List[ArrayNx4[float]],
     gt_lines_batch: List[ArrayNx4[float]],
     line_scores_batch: List[ArrayN[float]],
-    distance_threshold: float = 5,
-    min_overlap: float = 0.5,
-) -> float:
-    """
-    Calculates Orthogonal Average Precision (OAP)
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param line_scores_batch: list of predicted lines scores for each image
-    :param distance_threshold: threshold in pixels within which the line is considered to be true positive
-    :param min_overlap: minimal overlap of the projection of one line onto another line, averaged over two lines;
-    lines with a value greater than the threshold to be true positive
-    :return: Orthogonal Average Precision value
-    """
-    orthogonal_tp_indicator = VectorizedTPIndicator(
-        OrthogonalDistance(min_overlap), distance_threshold
-    )
-
-    return AveragePrecision(tp_indicator=orthogonal_tp_indicator).calculate(
-        pred_lines_batch,
-        gt_lines_batch,
-        line_scores_batch,
-    )
-
-
-def structural_average_precision(
-    pred_lines_batch: List[ArrayNx4[float]],
-    gt_lines_batch: List[ArrayNx4[float]],
-    line_scores_batch: List[ArrayN[float]],
+    distance: Union[str, Distance] = "orthogonal",
     distance_threshold: float = 5,
 ) -> float:
     """
-    Calculates Structural Average Precision (SAP)
+    Calculates vectorized average precision
     :param pred_lines_batch: list of predicted lines for each image
     :param gt_lines_batch: list of ground truth lines for each image
     :param line_scores_batch: list of predicted lines scores for each image
-    :param distance_threshold: threshold in pixels within which the line is considered to be true positive
-    :return: Structural Average Precision value
+    :param distance: distance object or distance name used
+    to determine true positives ({0})
+    :param distance_threshold: threshold in pixels within which
+    the line is considered to be true positive
+    :return: vectorized average precision value
     """
 
-    structural_tp_indicator = VectorizedTPIndicator(
-        StructuralDistance(), distance_threshold
+    distance = (
+        DistanceFactory().from_string(distance)
+        if isinstance(distance, str)
+        else distance
     )
 
-    return AveragePrecision(tp_indicator=structural_tp_indicator).calculate(
+    tp_indicator = VectorizedTPIndicator(distance, distance_threshold)
+
+    return AveragePrecision(tp_indicator=tp_indicator).calculate(
         pred_lines_batch,
         gt_lines_batch,
         line_scores_batch,

@@ -12,21 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
-from src.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
-from src.metrics.detection.vectorized.distance.structural import StructuralDistance
+from src.metrics.detection.vectorized import DISTANCE_NAMES
+from src.metrics.detection.vectorized.distance.distance import Distance
+from src.metrics.detection.vectorized.distance.distance_factory import (
+    DistanceFactory,
+)
+from src.metrics.detection.vectorized.utils import docstring_arg
 from src.typing import ArrayNx4
 from src.metrics.detection.vectorized.tp_indicator import (
     VectorizedTPIndicator,
 )
 
-__all__ = [
-    "orthogonal_recall",
-    "structural_recall",
-    "orthogonal_precision",
-    "structural_precision",
-]
+__all__ = ["vectorized_precision_recall", "vectorized_precision", "vectorized_recall"]
 
 
 class PrecisionRecall:
@@ -73,25 +72,33 @@ class PrecisionRecall:
         return precision, recall
 
 
-def orthogonal_precision_recall(
+@docstring_arg(DISTANCE_NAMES)
+def vectorized_precision_recall(
     pred_lines_batch: List[ArrayNx4[float]],
     gt_lines_batch: List[ArrayNx4[float]],
+    distance: Union[str, Distance] = "orthogonal",
     distance_threshold: float = 5,
-    min_overlap: float = 0.5,
 ) -> Tuple[float, float]:
     """
-    Calculates orthogonal precision and recall
+    Calculates vectorized precision and recall
     :param pred_lines_batch: list of predicted lines for each image
     :param gt_lines_batch: list of ground truth lines for each image
-    :param distance_threshold: threshold in pixels within which the line is considered to be true positive
-    :param min_overlap: minimal overlap of the projection of one line onto another line, averaged over two lines;
-    lines with a value greater than the threshold to be true positive
-    :return: orthogonal precision and recall values
+    :param distance: distance object or distance name used
+    to determine true positives ({0})
+    :param distance_threshold: threshold in pixels within which
+    the line is considered to be true positive
+    :return: vectorized precision and recall values
     """
-    orthogonal_tp_indicator = VectorizedTPIndicator(
-        OrthogonalDistance(min_overlap), distance_threshold
+
+    distance = (
+        DistanceFactory().from_string(distance)
+        if isinstance(distance, str)
+        else distance
     )
-    precision, recall = PrecisionRecall(tp_indicator=orthogonal_tp_indicator).calculate(
+
+    tp_indicator = VectorizedTPIndicator(distance, distance_threshold)
+
+    precision, recall = PrecisionRecall(tp_indicator=tp_indicator).calculate(
         pred_lines_batch,
         gt_lines_batch,
     )
@@ -99,127 +106,51 @@ def orthogonal_precision_recall(
     return precision, recall
 
 
-def structural_precision_recall(
+@docstring_arg(DISTANCE_NAMES)
+def vectorized_precision(
     pred_lines_batch: List[ArrayNx4[float]],
     gt_lines_batch: List[ArrayNx4[float]],
+    distance: Union[str, Distance] = "orthogonal",
     distance_threshold: float = 5,
-) -> Tuple[float, float]:
-    """
-    Calculates structural precision and recall
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param distance_threshold: threshold in pixels within which the line is considered to be true positive
-    :return: structural precision and recall values
-    """
-    structural_tp_indicator = VectorizedTPIndicator(
-        StructuralDistance(), distance_threshold
-    )
-    precision, recall = PrecisionRecall(tp_indicator=structural_tp_indicator).calculate(
-        pred_lines_batch,
-        gt_lines_batch,
-    )
-
-    return precision, recall
-
-
-def orthogonal_precision(
-    pred_lines_batch: List[ArrayNx4[float]],
-    gt_lines_batch: List[ArrayNx4[float]],
-    distance_threshold: float = 5,
-    min_overlap: float = 0.5,
 ) -> float:
     """
-    Calculates orthogonal precision
+    Calculates vectorized precision
     :param pred_lines_batch: list of predicted lines for each image
     :param gt_lines_batch: list of ground truth lines for each image
-    :param distance_threshold: threshold in pixels within which the line is considered to be true positive
-    :param min_overlap: minimal overlap of the projection of one line onto another line, averaged over two lines;
-    lines with a value greater than the threshold to be true positive
-    :return: orthogonal precision value
+    :param distance: distance object or distance name used
+    to determine true positives ({0})
+    :param distance_threshold: threshold in pixels within which
+    the line is considered to be true positive
+    :return: vectorized precision value
     """
-    orthogonal_tp_indicator = VectorizedTPIndicator(
-        OrthogonalDistance(min_overlap), distance_threshold
-    )
-    precision, _ = PrecisionRecall(tp_indicator=orthogonal_tp_indicator).calculate(
-        pred_lines_batch,
-        gt_lines_batch,
+
+    precision, _ = vectorized_precision_recall(
+        pred_lines_batch, gt_lines_batch, distance, distance_threshold
     )
 
     return precision
 
 
-def structural_precision(
+@docstring_arg(DISTANCE_NAMES)
+def vectorized_recall(
     pred_lines_batch: List[ArrayNx4[float]],
     gt_lines_batch: List[ArrayNx4[float]],
+    distance: Union[str, Distance] = "orthogonal",
     distance_threshold: float = 5,
 ) -> float:
     """
-    Calculates structural precision
+    Calculates vectorized recall
     :param pred_lines_batch: list of predicted lines for each image
     :param gt_lines_batch: list of ground truth lines for each image
-    :param distance_threshold: threshold in pixels within which the line is considered to be true positive
-    :return: structural precision value
+    :param distance: distance object or distance name used
+    to determine true positives ({0})
+    :param distance_threshold: threshold in pixels within which
+    the line is considered to be true positive
+    :return: vectorized recall value
     """
 
-    structural_tp_indicator = VectorizedTPIndicator(
-        StructuralDistance(), distance_threshold
-    )
-
-    precision, _ = PrecisionRecall(tp_indicator=structural_tp_indicator).calculate(
-        pred_lines_batch,
-        gt_lines_batch,
-    )
-
-    return precision
-
-
-def orthogonal_recall(
-    pred_lines_batch: List[ArrayNx4[float]],
-    gt_lines_batch: List[ArrayNx4[float]],
-    distance_threshold: float = 5,
-    min_overlap: float = 0.5,
-) -> float:
-    """
-    Calculates orthogonal recall
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param distance_threshold: threshold in pixels within which the line is considered to be true positive
-    :param min_overlap: minimal overlap of the projection of one line onto another line, averaged over two lines;
-    lines with a value greater than the threshold to be true positive
-    :return: orthogonal recall value
-    """
-    orthogonal_tp_indicator = VectorizedTPIndicator(
-        OrthogonalDistance(min_overlap), distance_threshold
-    )
-
-    _, recall = PrecisionRecall(tp_indicator=orthogonal_tp_indicator).calculate(
-        pred_lines_batch,
-        gt_lines_batch,
-    )
-
-    return recall
-
-
-def structural_recall(
-    pred_lines_batch: List[ArrayNx4[float]],
-    gt_lines_batch: List[ArrayNx4[float]],
-    distance_threshold: float = 5,
-) -> float:
-    """
-    Calculates structural recall
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param distance_threshold: threshold in pixels within which the line is considered to be true positive
-    :return: structural recall value
-    """
-
-    structural_tp_indicator = VectorizedTPIndicator(
-        StructuralDistance(), distance_threshold
-    )
-
-    _, recall = PrecisionRecall(tp_indicator=structural_tp_indicator).calculate(
-        pred_lines_batch,
-        gt_lines_batch,
+    _, recall = vectorized_precision_recall(
+        pred_lines_batch, gt_lines_batch, distance, distance_threshold
     )
 
     return recall
