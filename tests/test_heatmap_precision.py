@@ -15,51 +15,51 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.heatmap import HeatmapPrecisionRecall
+from src.metrics.detection.heatmap import heatmap_precision
 
 
 @pytest.mark.parametrize(
     "pred_lines_batch, "
     "gt_lines_batch, "
-    "scores_batch, "
     "heights_batch, "
     "widths_batch, "
-    "thresholds, "
-    "expected_precision, "
-    "expected_recall",
+    "expected_aph",
     [
         (
             [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])],
             [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])],
-            [np.array([1.0, 0.1])],
             np.array([5]),
             np.array([5]),
-            np.array([0.0, 0.2]),
-            np.array([1.0, 1.0]),
-            np.array([1.0, 0.5555]),
-        )
+            1.0,
+        ),
+        (
+            [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])],
+            [np.array([[5, 0, 0, 5]])],
+            np.array([5]),
+            np.array([5]),
+            5 / 9,
+        ),
+        (
+            [np.array([])],
+            [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])],
+            np.array([5]),
+            np.array([5]),
+            0.0,
+        ),
     ],
 )
-def test_heatmap_precision_recall(
+def test_heatmap_precision(
     pred_lines_batch,
     gt_lines_batch,
-    scores_batch,
     heights_batch,
     widths_batch,
-    thresholds,
-    expected_precision,
-    expected_recall,
+    expected_aph,
 ):
     epsilon = 1e-3
-    actual_precision, actual_recall = HeatmapPrecisionRecall().calculate(
+    actual_aph = heatmap_precision(
         pred_lines_batch,
         gt_lines_batch,
-        scores_batch,
         heights_batch,
         widths_batch,
-        thresholds,
     )
-    precision_diff = np.abs(actual_precision - expected_precision)
-    recall_diff = np.abs(actual_recall - expected_recall)
-    assert (precision_diff < epsilon).all()
-    assert (recall_diff < epsilon).all()
+    assert np.abs(actual_aph - expected_aph) < epsilon

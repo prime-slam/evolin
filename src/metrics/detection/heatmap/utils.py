@@ -31,12 +31,13 @@ def rasterize(lines: ArrayNx4[float], height: int, width: int) -> dok_matrix:
     x_index = [0, 2]
     y_index = [1, 3]
 
-    lines = lines.astype(int)
-    lines[:, x_index] = np.clip(lines[:, x_index], 0, width - 1)
-    lines[:, y_index] = np.clip(lines[:, y_index], 0, height - 1)
+    if lines.size != 0:
+        lines = lines.astype(int)
+        lines[:, x_index] = np.clip(lines[:, x_index], 0, width - 1)
+        lines[:, y_index] = np.clip(lines[:, y_index], 0, height - 1)
 
-    for x1, y1, x2, y2 in lines:
-        end_point, start_point = line_nd((x1, y1), (x2, y2), endpoint=True)
-        bitmap[start_point, end_point] = True
+        for x1, y1, x2, y2 in lines:
+            end_point, start_point = line_nd((x1, y1), (x2, y2), endpoint=True)
+            bitmap[start_point, end_point] = True
 
     return bitmap

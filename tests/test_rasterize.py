@@ -33,6 +33,12 @@ from src.metrics.detection.heatmap.utils import rasterize
             5,
             np.array([[True] * 5, [False] * 5, [False] * 5]),
         ),
+        (
+            np.array([]),
+            5,
+            5,
+            np.zeros((5, 5), bool),
+        ),
     ],
 )
 def test_rasterize(lines, height, width, expected_bitmap):

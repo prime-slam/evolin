@@ -15,7 +15,9 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.heatmap.assignment_problem.heatmap_tp_indicator import (
+from scipy.sparse import dok_matrix
+
+from src.metrics.detection.heatmap.tp_indicator import (
     HeatmapTPIndicator,
 )
 
@@ -24,22 +26,22 @@ from src.metrics.detection.heatmap.assignment_problem.heatmap_tp_indicator impor
     "gt_map, pred_map, expected_tp_map",
     [
         (
-            np.diag(np.full(5, True)),
-            np.diag(np.full(5, True)),
-            np.diag(np.full(5, True)),
+            dok_matrix(np.diag(np.full(5, True))),
+            dok_matrix(np.diag(np.full(5, True))),
+            dok_matrix(np.diag(np.full(5, True))),
         ),
         (
-            np.zeros((5, 5)),
-            np.diag(np.full(5, True)),
-            np.zeros((5, 5)),
+            dok_matrix(np.zeros((5, 5))),
+            dok_matrix(np.diag(np.full(5, True))),
+            dok_matrix(np.zeros((5, 5))),
         ),
         (
-            np.ones((5, 5)),
-            np.diag(np.full(5, True)),
-            np.diag(np.full(5, True)),
+            dok_matrix(np.ones((5, 5))),
+            dok_matrix(np.diag(np.full(5, True))),
+            dok_matrix(np.diag(np.full(5, True))),
         ),
     ],
 )
 def test_heatmap_tp_indicator(gt_map, pred_map, expected_tp_map):
     actual_tp_map = HeatmapTPIndicator().indicate(gt_map, pred_map)
-    assert (actual_tp_map == expected_tp_map).all()
+    assert (actual_tp_map.toarray() == expected_tp_map.toarray()).all()

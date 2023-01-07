@@ -14,14 +14,13 @@
 
 import numpy as np
 
-from typing import List, Union
+from typing import List, Tuple, Union
 
 from src.metrics.detection.vectorized.constants import DISTANCE_NAMES
 from src.metrics.detection.vectorized.distance.distance import Distance
 from src.metrics.detection.vectorized.distance.distance_factory import (
     DistanceFactory,
 )
-from src.metrics.detection.vectorized.precision_recall_curve import PrecisionRecallCurve
 from src.metrics.detection.vectorized.utils import docstring_arg
 from src.typing import ArrayNx4, ArrayN
 from src.metrics.detection.vectorized.tp_indicator import (
@@ -29,13 +28,13 @@ from src.metrics.detection.vectorized.tp_indicator import (
 )
 
 __all__ = [
-    "vectorized_average_precision",
+    "vectorized_precision_recall_curve",
 ]
 
 
-class AveragePrecision:
+class PrecisionRecallCurve:
     """
-    Class that calculates the Average Precision
+    Class that calculates precision-recall pairs for different score thresholds
     over batches of predicted and ground truth lines
     """
 
@@ -54,41 +53,62 @@ class AveragePrecision:
         pred_lines_batch: List[ArrayNx4[float]],
         gt_lines_batch: List[ArrayNx4[float]],
         line_scores_batch: List[ArrayN[float]],
-    ) -> float:
+    ) -> Tuple[ArrayN[float], ArrayN[float]]:
         """
-        Calculates Average Precision
+        Calculates the Precision-Recall Curve
         :param pred_lines_batch: list of predicted lines for each image
         :param gt_lines_batch: list of ground truth lines for each image
         :param line_scores_batch: list of predicted lines scores for each image
-        :return: Average Precision value
+        :return: lists of x (recall) and y (precision) coordinates
         """
-        precision, recall = PrecisionRecallCurve(self.tp_indicator).calculate(
-            pred_lines_batch, gt_lines_batch, line_scores_batch
+
+        total_tp_indicators = np.concatenate(
+            [
+                self.tp_indicator.indicate(pred_lines[np.argsort(-scores)], gt_lines)
+                for pred_lines, gt_lines, scores in zip(
+                    pred_lines_batch, gt_lines_batch, line_scores_batch
+                )
+            ]
         )
-        # AP is the area under the PR Curve
-        return np.trapz(x=recall, y=precision)
+
+        total_fp_indicators = ~total_tp_indicators
+        gt_size = sum(len(gt_lines) for gt_lines in gt_lines_batch)
+
+        precision_descending_order = np.argsort(-np.concatenate(line_scores_batch))
+        total_tp_indicators = total_tp_indicators[precision_descending_order]
+        total_fp_indicators = total_fp_indicators[precision_descending_order]
+
+        tp = np.cumsum(total_tp_indicators)
+        fp = np.cumsum(total_fp_indicators)
+
+        recall = tp / gt_size  # gt_size = tp + fn
+        precision = np.zeros(np.size(tp), dtype=float)
+        nonzero_mask = tp + fp != 0
+        precision[nonzero_mask] = tp[nonzero_mask] / (
+            tp[nonzero_mask] + fp[nonzero_mask]
+        )
+
+        return precision, recall
 
 
 @docstring_arg(DISTANCE_NAMES)
-def vectorized_average_precision(
+def vectorized_precision_recall_curve(
     pred_lines_batch: List[ArrayNx4[float]],
     gt_lines_batch: List[ArrayNx4[float]],
     line_scores_batch: List[ArrayN[float]],
     distance: Union[str, Distance] = "orthogonal",
     distance_threshold: float = 5,
-) -> float:
+) -> Tuple[ArrayN[float], ArrayN[float]]:
     """
-    Calculates vectorized average precision
+    Calculates the Orthogonal Precision-Recall Curve
     :param pred_lines_batch: list of predicted lines for each image
     :param gt_lines_batch: list of ground truth lines for each image
     :param line_scores_batch: list of predicted lines scores for each image
     :param distance: distance object or distance name used
     to determine true positives ({0})
-    :param distance_threshold: threshold in pixels within which
-    the line is considered to be true positive
-    :return: vectorized average precision value
+    :param distance_threshold: threshold in pixels within which the line is considered to be true positive
+    :return: lists of x (recall) and y (precision) coordinates
     """
-
     distance = (
         DistanceFactory().from_string(distance)
         if isinstance(distance, str)
@@ -97,7 +117,7 @@ def vectorized_average_precision(
 
     tp_indicator = VectorizedTPIndicator(distance, distance_threshold)
 
-    return AveragePrecision(tp_indicator=tp_indicator).calculate(
+    return PrecisionRecallCurve(tp_indicator=tp_indicator).calculate(
         pred_lines_batch,
         gt_lines_batch,
         line_scores_batch,
