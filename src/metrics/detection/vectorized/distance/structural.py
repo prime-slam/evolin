@@ -20,12 +20,18 @@ from src.typing import ArrayNx2x2, ArrayNxM
 
 class StructuralDistance(Distance):
     def calculate(
-        self, first_lines: ArrayNx2x2[float], second_lines: ArrayNx2x2[float]
+        self,
+        first_lines: ArrayNx2x2[float],
+        second_lines: ArrayNx2x2[float],
+        squared: bool = True,
     ) -> ArrayNxM[float]:
         endpoint_distances = (
             (first_lines[:, np.newaxis, :, np.newaxis] - second_lines[:, np.newaxis])
             ** 2
         ).sum(-1)
+
+        if not squared:
+            endpoint_distances = np.sqrt(endpoint_distances)
 
         structural_distances = np.minimum(
             endpoint_distances[..., 0, 0] + endpoint_distances[..., 1, 1],
