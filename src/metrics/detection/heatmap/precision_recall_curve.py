@@ -44,7 +44,7 @@ class PrecisionRecallCurve:
         line_scores_batch: List[ArrayNx4[float]],
         heights_batch: ArrayN[int],
         widths_batch: ArrayN[int],
-        thresholds: ArrayN[int],
+        thresholds: ArrayN[float],
     ) -> Tuple[ArrayN[float], ArrayN[float]]:
         """
         Calculates the Precision-Recall Curve
@@ -81,7 +81,7 @@ class PrecisionRecallCurve:
                 pred_map = rasterize(pred_lines[scores > threshold], height, width)
                 tp_indicators_map = self.tp_indicator.indicate(gt_map, pred_map)
                 tp_sum[i] += tp_indicators_map.nnz
-                fp_sum[i] += pred_map.nnz - tp_sum[i]
+                fp_sum[i] += pred_map.nnz - tp_indicators_map.nnz
                 gt_size_sum[i] += gt_map.nnz
 
         Parallel(n_jobs=os.cpu_count(), require="sharedmem")(
@@ -112,7 +112,7 @@ def heatmap_precision_recall_curve(
     line_scores_batch: List[ArrayNx4[float]],
     heights_batch: ArrayN[int],
     widths_batch: ArrayN[int],
-    thresholds: ArrayN[int],
+    thresholds: ArrayN[float],
 ) -> Tuple[ArrayN[float], ArrayN[float]]:
     """
     Calculates the Precision-Recall Curve

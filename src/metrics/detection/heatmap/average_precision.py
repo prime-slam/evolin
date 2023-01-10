@@ -30,7 +30,7 @@ def heatmap_average_precision(
     line_scores_batch: List[ArrayNx4[float]],
     heights_batch: ArrayN[int],
     widths_batch: ArrayN[int],
-    thresholds: ArrayN[int],
+    thresholds: ArrayN[float],
 ):
     """
     Calculates Heatmap Average Precision (AP^H)
