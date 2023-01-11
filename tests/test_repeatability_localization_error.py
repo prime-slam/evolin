@@ -28,7 +28,7 @@ def test_repeatability_localization_error():
         [[1, 0, width / 2, 0], [0, 1, height / 2, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
     )
     # transforms from world to camera frames
-    E1 = np.diag(np.full(4, 1))
+    E1 = np.eye(4)
     E2 = np.array(
         [
             [-0.999762, 0.000000, -0.021799, 0.790932],
