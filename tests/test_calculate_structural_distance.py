@@ -19,17 +19,36 @@ from src.metrics.detection.vectorized.distance.structural import StructuralDista
 
 
 @pytest.mark.parametrize(
-    "first_lines, second_lines, expected_distance",
+    "first_lines, second_lines, expected_distance, expected_distance_squared",
     [
-        (np.array([[[1, 0], [1, 0]]]), np.array([[[1, 0], [1, 0]]]), np.array([[0]])),
-        (np.array([[[1, 0], [0, 1]]]), np.array([[[0, 1], [1, 0]]]), np.array([[0]])),
+        (
+            np.array([[[1, 0], [1, 0]]]),
+            np.array([[[1, 0], [1, 0]]]),
+            np.array([[0]]),
+            np.array([[0]]),
+        ),
+        (
+            np.array([[[1, 0], [0, 1]]]),
+            np.array([[[0, 1], [1, 0]]]),
+            np.array([[0]]),
+            np.array([[0]]),
+        ),
         (
             np.array([[[1, 0], [0, 1]]]),
             np.array([[[5, 1], [1, 0]], [[0, 1], [1, 0]]]),
+            np.array([[5, 0]]),
             np.array([[19, 0]]),
         ),
     ],
 )
-def test_correct_structural_distance(first_lines, second_lines, expected_distance):
-    actual_distance = StructuralDistance().calculate(first_lines, second_lines)
+def test_correct_structural_distance(
+    first_lines, second_lines, expected_distance, expected_distance_squared
+):
+    distance = StructuralDistance()
+    actual_distance = distance.calculate(first_lines, second_lines, squared=False)
+    actual_distance_squared = StructuralDistance().calculate(
+        first_lines, second_lines, squared=True
+    )
+
     assert (actual_distance == expected_distance).all()
+    assert (actual_distance_squared == expected_distance_squared).all()
