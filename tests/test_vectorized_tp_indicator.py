@@ -30,7 +30,7 @@ def orthogonal_tp_indicator():
 
 @pytest.fixture
 def structural_tp_indicator():
-    return VectorizedTPIndicator(StructuralDistance(), 5)
+    return VectorizedTPIndicator(StructuralDistance(squared=True), 5)
 
 
 @pytest.mark.parametrize(
