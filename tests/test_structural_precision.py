@@ -16,6 +16,7 @@ import numpy as np
 import pytest
 
 from src.metrics.detection.vectorized import vectorized_precision
+from src.metrics.detection.vectorized.distance.structural import StructuralDistance
 
 
 @pytest.mark.parametrize(
@@ -38,6 +39,7 @@ from src.metrics.detection.vectorized import vectorized_precision
     ],
 )
 def test_structural_precision(pred_lines, gt_lines, expected):
-    actual = vectorized_precision(pred_lines, gt_lines, distance="structural")
+    distance = StructuralDistance(squared=True)
+    actual = vectorized_precision(pred_lines, gt_lines, distance=distance)
     eps = 0.001
     assert np.abs(actual - expected) < eps
