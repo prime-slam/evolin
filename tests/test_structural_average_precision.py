@@ -17,14 +17,16 @@ import pytest
 
 from common import DATA_PATH
 from src.metrics.detection.vectorized import vectorized_average_precision
+from src.metrics.detection.vectorized.distance.structural import StructuralDistance
 
 
 def test_sap():
+    distance = StructuralDistance(squared=True)
     pred_lines = np.genfromtxt(DATA_PATH / "pred.csv", delimiter=",")
     gt_lines = np.genfromtxt(DATA_PATH / "gt.csv", delimiter=",")
     line_scores = np.genfromtxt(DATA_PATH / "score.csv", delimiter=",")
     actual = vectorized_average_precision(
-        [pred_lines], [gt_lines], [line_scores], distance="structural"
+        [pred_lines], [gt_lines], [line_scores], distance=distance
     )
     # The reference result was calculated using metric from here https://github.com/zhou13/lcnn
     expected = 0.3835
