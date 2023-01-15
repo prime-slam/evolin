@@ -1,6 +1,7 @@
 black
 joblib
 numpy
+pillow
 pre-commit
 pytest
 scikit-image

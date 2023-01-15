@@ -25,7 +25,12 @@ from src.metrics.detection.vectorized.tp_indicator import (
     VectorizedTPIndicator,
 )
 
-__all__ = ["vectorized_precision_recall", "vectorized_precision", "vectorized_recall"]
+__all__ = [
+    "vectorized_precision_recall_fscore",
+    "vectorized_precision",
+    "vectorized_recall",
+    "vectorized_fscore",
+]
 
 
 class PrecisionRecall:
@@ -73,12 +78,12 @@ class PrecisionRecall:
 
 
 @docstring_arg(DISTANCE_NAMES)
-def vectorized_precision_recall(
+def vectorized_precision_recall_fscore(
     pred_lines_batch: List[ArrayNx4[float]],
     gt_lines_batch: List[ArrayNx4[float]],
     distance: Union[str, Distance] = "orthogonal",
     distance_threshold: float = 5,
-) -> Tuple[float, float]:
+) -> Tuple[float, float, float]:
     """
     Calculates vectorized precision and recall
     :param pred_lines_batch: list of predicted lines for each image
@@ -102,8 +107,11 @@ def vectorized_precision_recall(
         pred_lines_batch,
         gt_lines_batch,
     )
+    fscore = (
+        2 * precision * recall / (precision + recall) if precision * recall != 0 else 0
+    )
 
-    return precision, recall
+    return precision, recall, fscore
 
 
 @docstring_arg(DISTANCE_NAMES)
@@ -124,7 +132,7 @@ def vectorized_precision(
     :return: vectorized precision value
     """
 
-    precision, _ = vectorized_precision_recall(
+    precision, _, _ = vectorized_precision_recall_fscore(
         pred_lines_batch, gt_lines_batch, distance, distance_threshold
     )
 
@@ -149,8 +157,35 @@ def vectorized_recall(
     :return: vectorized recall value
     """
 
-    _, recall = vectorized_precision_recall(
+    _, recall, _ = vectorized_precision_recall_fscore(
         pred_lines_batch, gt_lines_batch, distance, distance_threshold
     )
 
     return recall
+
+
+@docstring_arg(DISTANCE_NAMES)
+def vectorized_fscore(
+    pred_lines_batch: List[ArrayNx4[float]],
+    gt_lines_batch: List[ArrayNx4[float]],
+    distance: Union[str, Distance] = "orthogonal",
+    distance_threshold: float = 5,
+) -> float:
+    """
+    Calculates vectorized F-Score
+    :param pred_lines_batch: list of predicted lines for each image
+    :param gt_lines_batch: list of ground truth lines for each image
+    :param distance: distance object or distance name used
+    to determine true positives ({0})
+    :param distance_threshold: threshold in pixels within which
+    the line is considered to be true positive
+    :return: vectorized F-Score value
+    """
+    _, _, fscore = vectorized_precision_recall_fscore(
+        pred_lines_batch,
+        gt_lines_batch,
+        distance,
+        distance_threshold,
+    )
+
+    return fscore

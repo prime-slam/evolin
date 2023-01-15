@@ -73,16 +73,17 @@ class PrecisionRecallCurve:
 
         tp_sum = np.zeros(thresholds_number)
         fp_sum = np.zeros(thresholds_number)
-        gt_size_sum = np.zeros(thresholds_number)
+        gt_size_sum = 0
 
         def add_statistics(pred_lines, gt_lines, scores, height, width):
+            nonlocal gt_size_sum
+            gt_map = rasterize(gt_lines, height, width)
+            gt_size_sum += gt_map.nnz
             for i, threshold in enumerate(thresholds):
-                gt_map = rasterize(gt_lines, height, width)
                 pred_map = rasterize(pred_lines[scores > threshold], height, width)
                 tp_indicators_map = self.tp_indicator.indicate(gt_map, pred_map)
                 tp_sum[i] += tp_indicators_map.nnz
                 fp_sum[i] += pred_map.nnz - tp_indicators_map.nnz
-                gt_size_sum[i] += gt_map.nnz
 
         Parallel(n_jobs=os.cpu_count(), require="sharedmem")(
             delayed(add_statistics)(pred_lines, gt_lines, scores, height, width)

@@ -44,10 +44,12 @@ from src.metrics.detection.vectorized.distance.structural import StructuralDista
 def test_correct_structural_distance(
     first_lines, second_lines, expected_distance, expected_distance_squared
 ):
-    distance = StructuralDistance()
-    actual_distance = distance.calculate(first_lines, second_lines, squared=False)
-    actual_distance_squared = StructuralDistance().calculate(
-        first_lines, second_lines, squared=True
+    squared_distance = StructuralDistance(squared=True)
+    nonsquared_distance = StructuralDistance(squared=False)
+    actual_distance = nonsquared_distance.calculate(first_lines, second_lines)
+    actual_distance_squared = squared_distance.calculate(
+        first_lines,
+        second_lines,
     )
 
     assert (actual_distance == expected_distance).all()
