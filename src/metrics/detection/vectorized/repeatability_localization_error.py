@@ -54,13 +54,18 @@ def repeatability_localization_error(
     :return: repeatability and localization error
     """
 
-    all_lines = it.chain(
-        first_lines_batch,
-        second_lines_batch,
-        first_lines_projections_batch,
-        second_lines_projections_batch,
+    all_lines = list(
+        it.chain(
+            first_lines_batch,
+            second_lines_batch,
+            first_lines_projections_batch,
+            second_lines_projections_batch,
+        )
     )
-    if any(np.max(lines) > EVALUATION_RESOLUTION for lines in all_lines):
+    if any(
+        np.max(lines) > EVALUATION_RESOLUTION if len(lines) != 0 else False
+        for lines in all_lines
+    ):
         raise ValueError(
             f"All lines should be scaled to the "
             f"{EVALUATION_RESOLUTION}x{EVALUATION_RESOLUTION} resolution"
@@ -110,9 +115,18 @@ def repeatability_localization_error(
         repeatability_sum += (first_repeatable.sum() + second_repeatable.sum()) / (
             len(first_lines) + len(second_lines)
         )
+        second_to_first_localization_error = (
+            0
+            if second_repeatable.sum() == 0
+            else second_to_first_distances[second_repeatable].mean()
+        )
+        first_to_second_localization_error = (
+            0
+            if first_repeatable.sum() == 0
+            else first_to_second_distances[first_repeatable].mean()
+        )
         localization_error_sum += (
-            second_to_first_distances[second_repeatable].mean()
-            + first_to_second_distances[first_repeatable].mean()
+            second_to_first_localization_error + first_to_second_localization_error
         ) / 2
 
     batch_size = len(first_lines_batch)
