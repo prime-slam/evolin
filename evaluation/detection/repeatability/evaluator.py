@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import itertools
+
 from pathlib import Path
 from typing import List
+
+from joblib import Parallel, delayed
 
 from evaluation.common.evaluator_base import Evaluator
 from evaluation.common.metric_information.additional_info import (
@@ -25,7 +30,9 @@ from evaluation.common.metric_information.metric_info import (
     MetricInfo,
     SimpleMetricInfo,
 )
-from evaluation.repeatability.geometry.project_lines import make_projected_line_pairs
+from evaluation.detection.repeatability.geometry.project_lines import (
+    make_projected_line_pairs,
+)
 from evaluation.common.utils import filter_lines_by_score
 from src.metrics.detection.vectorized import (
     repeatability_localization_error,
@@ -126,8 +133,7 @@ class ScoredEvaluator(Evaluator):
         self.distance_thresholds = distance_thresholds
 
     def evaluate(self) -> List[MetricInfo]:
-        results = []
-        for score_threshold in self.score_thresholds:
+        def calculate(score_threshold):
             filtered_lines_batch = filter_lines_by_score(
                 self.pred_lines_batch, self.scores_batch, score_threshold
             )
@@ -145,6 +151,15 @@ class ScoredEvaluator(Evaluator):
                 info.additional_information.append(
                     ScoreInfo(score_threshold=score_threshold)
                 )
-            results.extend(metrics_info)
+            return metrics_info
+
+        results = list(
+            itertools.chain.from_iterable(
+                Parallel(n_jobs=os.cpu_count() // 2)(
+                    delayed(calculate)(score_threshold)
+                    for score_threshold in self.score_thresholds
+                )
+            )
+        )
 
         return results

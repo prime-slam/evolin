@@ -14,28 +14,34 @@
 
 import numpy as np
 
+from typing import Optional, List
 from pathlib import Path
-from typing import List, Optional
 
-from evaluation.classification.heatmap.evaluator import (
-    ScoredEvaluator,
-    UnscoredEvaluator,
-)
-from evaluation.common.metric_information.metric_info import (
-    MetricInfo,
-)
+from evaluation.common.metric_information.metric_info import MetricInfo
 from evaluation.common.parser import create_base_parser
 from evaluation.common.utils import (
     read_csv_batch,
+    clip_lines,
+    is_nonzero_length,
     create_image_sizes_batch,
+    scale_lines,
     write_metrics,
 )
+from evaluation.detection.classification.vectorized.evaluator import (
+    ScoredEvaluator,
+    UnscoredEvaluator,
+)
+from src.metrics.detection.vectorized import (
+    EVALUATION_RESOLUTION,
+)
+from src.typing import ArrayN
 
 
-def calculate_heatmap_metrics(
+def calculate_vectorized_metrics(
     images_path: Path,
     pred_lines_batch_path: Path,
     gt_lines_batch_path: Path,
+    distance_thresholds: ArrayN[float],
     scores_batch_path: Optional[Path] = None,
     score_thresholds_path: Optional[Path] = None,
 ) -> List[MetricInfo]:
@@ -46,24 +52,37 @@ def calculate_heatmap_metrics(
     scores_batch = read_csv_batch(scores_batch_path) if use_scores else None
     score_thresholds = np.genfromtxt(score_thresholds_path) if use_scores else None
     image_sizes_batch = create_image_sizes_batch(images_path)
-    heights_batch = image_sizes_batch[..., 0]
-    widths_batch = image_sizes_batch[..., 1]
+
+    for i in range(len(gt_lines_batch)):
+        height, width = image_sizes_batch[i]
+        pred_lines = pred_lines_batch[i]
+        gt_lines = gt_lines_batch[i]
+
+        x_scaler = EVALUATION_RESOLUTION / width
+        y_scaler = EVALUATION_RESOLUTION / height
+        if pred_lines.size != 0:
+            scale_lines(pred_lines, x_scaler, y_scaler)
+            pred_lines = clip_lines(
+                pred_lines, EVALUATION_RESOLUTION, EVALUATION_RESOLUTION
+            )
+            nonzero_length = is_nonzero_length(pred_lines)
+            pred_lines_batch[i] = pred_lines[nonzero_length]
+            if use_scores:
+                scores_batch[i] = scores_batch[i][nonzero_length]
+
+        scale_lines(gt_lines, x_scaler, y_scaler)
 
     evaluator = (
         ScoredEvaluator(
             pred_lines_batch,
             gt_lines_batch,
             scores_batch,
-            heights_batch,
-            widths_batch,
             score_thresholds,
+            distance_thresholds,
         )
         if use_scores
-        else UnscoredEvaluator(
-            pred_lines_batch, gt_lines_batch, heights_batch, widths_batch
-        )
+        else UnscoredEvaluator(pred_lines_batch, gt_lines_batch, distance_thresholds)
     )
-
     return evaluator.evaluate()
 
 
@@ -83,23 +102,34 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "--distance-thresholds",
+        "-d",
+        metavar="SEQ",
+        nargs="+",
+        type=float,
+        help="distance thresholds in pixels",
+        default=[5.0, 10.0, 15.0],
+    )
+
+    parser.add_argument(
         "--output-file",
         "-O",
         metavar="STR",
         help="name of output file",
-        default="heatmap_metrics.json",
+        default="vectorized_classification_metrics.json",
     )
 
     args = parser.parse_args()
-    results = calculate_heatmap_metrics(
+
+    results = calculate_vectorized_metrics(
         images_path=Path(args.imgs),
         pred_lines_batch_path=Path(args.pred_lines),
         gt_lines_batch_path=Path(args.gt_lines),
+        distance_thresholds=np.array(args.distance_thresholds),
         scores_batch_path=Path(args.scores) if args.scores else None,
         score_thresholds_path=Path(args.score_thresholds)
         if args.score_thresholds
         else None,
     )
-
     output_path = Path(args.output) / args.output_file
     write_metrics(output_path, results)

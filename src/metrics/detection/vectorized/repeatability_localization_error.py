@@ -101,28 +101,50 @@ def repeatability_localization_error(
         first_lines_projections_batch,
         second_lines_projections_batch,
     ):
-        second_to_first_distances = calculate_min_distances(
-            second_lines_projections.reshape(lines_shape),
-            first_lines.reshape(lines_shape),
+        second_to_first_distances = (
+            calculate_min_distances(
+                second_lines_projections.reshape(lines_shape),
+                first_lines.reshape(lines_shape),
+            )
+            if (second_lines_projections.size != 0 and first_lines.size != 0)
+            else None
         )
-        first_to_second_distances = calculate_min_distances(
-            first_lines_projections.reshape(lines_shape),
-            second_lines.reshape(lines_shape),
+        first_to_second_distances = (
+            calculate_min_distances(
+                first_lines_projections.reshape(lines_shape),
+                second_lines.reshape(lines_shape),
+            )
+            if (first_lines_projections.size != 0 and second_lines.size != 0)
+            else None
         )
-        second_repeatable = second_to_first_distances < distance_threshold
-        first_repeatable = first_to_second_distances < distance_threshold
+        second_repeatable = (
+            (second_to_first_distances < distance_threshold)
+            if second_to_first_distances is not None
+            else None
+        )
+        first_repeatable = (
+            (first_to_second_distances < distance_threshold)
+            if first_to_second_distances is not None
+            else None
+        )
 
-        repeatability_sum += (first_repeatable.sum() + second_repeatable.sum()) / (
-            len(first_lines) + len(second_lines)
+        repeatability_sum += (
+            (
+                (first_repeatable.sum() if first_repeatable is not None else 0)
+                + (second_repeatable.sum() if second_repeatable is not None else 0)
+            )
+            / (len(first_lines) + len(second_lines))
+            if ((len(first_lines) + len(second_lines)) != 0)
+            else 0
         )
         second_to_first_localization_error = (
             0
-            if second_repeatable.sum() == 0
+            if (second_repeatable is None or second_repeatable.sum() == 0)
             else second_to_first_distances[second_repeatable].mean()
         )
         first_to_second_localization_error = (
             0
-            if first_repeatable.sum() == 0
+            if (first_repeatable is None or first_repeatable.sum() == 0)
             else first_to_second_distances[first_repeatable].mean()
         )
         localization_error_sum += (

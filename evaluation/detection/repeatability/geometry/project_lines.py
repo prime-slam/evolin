@@ -106,8 +106,10 @@ def make_projected_line_pairs(
         second_depth_map = io.imread(depth_map_paths[second_frame]) / depth_scaler
         height2, width2 = second_depth_map.shape[:2]
 
-        first_lines = clip_lines(first_lines, height1, width1)
-        second_lines = clip_lines(second_lines, height2, width2)
+        if first_lines.size != 0:
+            first_lines = clip_lines(first_lines, height1, width1)
+        if second_lines.size != 0:
+            second_lines = clip_lines(second_lines, height2, width2)
 
         E1 = euclidean_transforms[first_frame]
         E2 = euclidean_transforms[second_frame]
@@ -118,18 +120,36 @@ def make_projected_line_pairs(
         M = P2 @ np.linalg.inv(P1)
         M_inv = P1 @ np.linalg.inv(P2)
 
-        first_lines_projections = clip_lines(
-            project_lines(first_lines, M, first_depth_map), height1, width1
-        )
-        first_lines_projections = first_lines_projections[
-            is_nonzero_length(first_lines_projections)
-        ]
-        second_lines_projections = clip_lines(
-            project_lines(second_lines, M_inv, second_depth_map), height2, width2
-        )
-        second_lines_projections = second_lines_projections[
-            is_nonzero_length(second_lines_projections)
-        ]
+        if first_lines.size != 0:
+            first_lines_projections = clip_lines(
+                project_lines(first_lines, M, first_depth_map), height1, width1
+            )
+            first_lines_projections = first_lines_projections[
+                is_nonzero_length(first_lines_projections)
+            ]
+
+            first_lines_projections_batch.append(
+                scale_lines(
+                    first_lines_projections,
+                    x_scaler=EVALUATION_RESOLUTION / width1,
+                    y_scaler=EVALUATION_RESOLUTION / height1,
+                )
+            )
+
+        if second_lines.size != 0:
+            second_lines_projections = clip_lines(
+                project_lines(second_lines, M_inv, second_depth_map), height2, width2
+            )
+            second_lines_projections = second_lines_projections[
+                is_nonzero_length(second_lines_projections)
+            ]
+            second_lines_projections_batch.append(
+                scale_lines(
+                    second_lines_projections,
+                    x_scaler=EVALUATION_RESOLUTION / width2,
+                    y_scaler=EVALUATION_RESOLUTION / height2,
+                )
+            )
 
         first_lines_batch.append(
             scale_lines(
@@ -137,6 +157,8 @@ def make_projected_line_pairs(
                 x_scaler=EVALUATION_RESOLUTION / width1,
                 y_scaler=EVALUATION_RESOLUTION / height1,
             )
+            if first_lines.size != 0
+            else first_lines
         )
         second_lines_batch.append(
             scale_lines(
@@ -144,20 +166,8 @@ def make_projected_line_pairs(
                 x_scaler=EVALUATION_RESOLUTION / width2,
                 y_scaler=EVALUATION_RESOLUTION / height2,
             )
-        )
-        first_lines_projections_batch.append(
-            scale_lines(
-                first_lines_projections,
-                x_scaler=EVALUATION_RESOLUTION / width1,
-                y_scaler=EVALUATION_RESOLUTION / height1,
-            )
-        )
-        second_lines_projections_batch.append(
-            scale_lines(
-                second_lines_projections,
-                x_scaler=EVALUATION_RESOLUTION / width2,
-                y_scaler=EVALUATION_RESOLUTION / height2,
-            )
+            if second_lines.size != 0
+            else second_lines
         )
 
     return (

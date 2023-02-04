@@ -17,7 +17,9 @@ import numpy as np
 from pathlib import Path
 from scipy.spatial.transform import Rotation as R
 
-from evaluation.repeatability.geometry.transform import make_euclidean_transform
+from evaluation.detection.repeatability.geometry.transform import (
+    make_euclidean_transform,
+)
 
 
 def read_poses(poses_path: Path, comment_symbol: str = "#"):

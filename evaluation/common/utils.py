@@ -73,6 +73,7 @@ def create_image_sizes_batch(images_path: Path) -> ArrayNx2[float]:
 
 
 def write_metrics(output: Path, metrics: List[MetricInfo]):
+    output.parent.mkdir(parents=True, exist_ok=True)
     dicts = [metric_info.to_dict() for metric_info in metrics]
     with open(output, "w") as out:
         json.dump(dicts, out, ensure_ascii=False)
