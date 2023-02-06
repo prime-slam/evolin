@@ -14,9 +14,9 @@
 
 import numpy as np
 
-from scipy.optimize import linear_sum_assignment
-from scipy.sparse import dok_matrix
-from scipy.spatial import distance_matrix
+from scipy.sparse import dok_matrix, csr_matrix
+from scipy.sparse.csgraph import min_weight_full_bipartite_matching
+from scipy.spatial import cKDTree
 from scipy.stats import rankdata
 
 
@@ -36,30 +36,46 @@ class HeatmapTPIndicator:
         max_dist = np.ceil(self.max_dist_diag_ratio * diagonal).astype(int)
 
         gt_pixels = np.column_stack(gt_map.nonzero())
+        gt_kd_tree = cKDTree(gt_pixels)
         pred_pixels = np.column_stack(pred_map.nonzero())
-        pixel_distances = distance_matrix(gt_pixels, pred_pixels)
+        pred_kd_tree = cKDTree(pred_pixels)
+        pixel_distances = gt_kd_tree.sparse_distance_matrix(
+            pred_kd_tree, max_distance=max_dist
+        )
 
-        gt_pixels_index, pred_pixels_index = (pixel_distances <= max_dist).nonzero()
+        tp_indicators = dok_matrix(map_shape, dtype=bool)
+        if pixel_distances.nnz == 0:
+            return tp_indicators
+
+        gt_pixels_index, pred_pixels_index = list(
+            map(np.array, zip(*pixel_distances.keys()))
+        )
+        epsilon = 1e-6
+        pixel_distances[gt_pixels_index, pred_pixels_index] += epsilon
+
         gt_nodes = rankdata(gt_pixels_index, method="dense") - 1
         pred_nodes = rankdata(pred_pixels_index, method="dense") - 1
         weights = pixel_distances[gt_pixels_index, pred_pixels_index]
 
-        tp_indicators = dok_matrix(map_shape, dtype=bool)
-
-        if len(weights) == 0:
-            return tp_indicators
-
         gt_nodes_size = len(np.unique(gt_nodes))
         pred_nodes_size = len(np.unique(pred_nodes))
 
-        cost_matrix = np.full((gt_nodes_size, pred_nodes_size), outlier_cost)
+        cost_matrix = dok_matrix((gt_nodes_size, pred_nodes_size + gt_nodes_size))
         cost_matrix[gt_nodes, pred_nodes] = weights
+        cost_matrix[
+            np.arange(gt_nodes_size), np.arange(gt_nodes_size) + pred_nodes_size
+        ] = outlier_cost
 
-        gt_matched_nodes, pred_matched_nodes = linear_sum_assignment(cost_matrix)
+        gt_matched_nodes, pred_matched_nodes = min_weight_full_bipartite_matching(
+            csr_matrix(cost_matrix)
+        )
         gt_node_to_pixel_index = np.unique(gt_pixels_index)
 
         # compute tp indicator map
-        inliers_mask = cost_matrix[gt_matched_nodes, pred_matched_nodes] != outlier_cost
+        inliers_mask = (
+            cost_matrix[gt_matched_nodes, pred_matched_nodes].toarray().flatten()
+            != outlier_cost
+        )
         inlier_gt_nodes = gt_matched_nodes[inliers_mask]
         inlier_pixels = gt_pixels[gt_node_to_pixel_index[inlier_gt_nodes]]
         y, x = inlier_pixels[:, 0], inlier_pixels[:, 1]

@@ -19,6 +19,7 @@ from joblib import Parallel, delayed
 from tqdm.contrib import tzip
 from typing import List, Tuple
 
+from src.metrics.detection.heatmap.basic_metrics import BasicMetrics
 from src.metrics.detection.heatmap.tp_indicator import (
     HeatmapTPIndicator,
 )
@@ -71,36 +72,42 @@ class PrecisionRecallCurve:
         if thresholds_number == 0:
             raise ValueError("The list of threshold cannot be empty")
 
-        tp_sum = np.zeros(thresholds_number)
-        fp_sum = np.zeros(thresholds_number)
-        gt_size_sum = 0
-
-        def add_statistics(pred_lines, gt_lines, scores, height, width):
-            nonlocal gt_size_sum
+        def calculate_statistics(pred_lines, gt_lines, scores, height, width):
             gt_map = rasterize(gt_lines, height, width)
-            gt_size_sum += gt_map.nnz
+            gt_size = gt_map.nnz
+            tp = np.zeros(thresholds_number)
+            fp = np.zeros(thresholds_number)
             for i, threshold in enumerate(thresholds):
                 pred_map = rasterize(pred_lines[scores > threshold], height, width)
                 tp_indicators_map = self.tp_indicator.indicate(gt_map, pred_map)
-                tp_sum[i] += tp_indicators_map.nnz
-                fp_sum[i] += pred_map.nnz - tp_indicators_map.nnz
+                tp[i] += tp_indicators_map.nnz
+                fp[i] += pred_map.nnz - tp_indicators_map.nnz
+            return BasicMetrics(tp, fp, gt_size)
 
-        Parallel(n_jobs=os.cpu_count(), require="sharedmem")(
-            delayed(add_statistics)(pred_lines, gt_lines, scores, height, width)
-            for pred_lines, gt_lines, scores, height, width in tzip(
-                pred_lines_batch,
-                gt_lines_batch,
-                line_scores_batch,
-                heights_batch,
-                widths_batch,
+        stats = sum(
+            Parallel(n_jobs=os.cpu_count())(
+                delayed(calculate_statistics)(
+                    pred_lines, gt_lines, scores, height, width
+                )
+                for pred_lines, gt_lines, scores, height, width in tzip(
+                    pred_lines_batch,
+                    gt_lines_batch,
+                    line_scores_batch,
+                    heights_batch,
+                    widths_batch,
+                )
             )
         )
 
-        recall = tp_sum / gt_size_sum
-        precision = np.zeros(np.size(tp_sum), dtype=float)
-        nonzero_mask = tp_sum + fp_sum != 0
-        precision[nonzero_mask] = tp_sum[nonzero_mask] / (
-            tp_sum[nonzero_mask] + fp_sum[nonzero_mask]
+        tp = stats.tp
+        fp = stats.fp
+        gt = stats.gt
+
+        recall = tp / gt
+        precision = np.zeros(np.size(tp), dtype=float)
+        nonzero_mask = stats.tp + stats.fp != 0
+        precision[nonzero_mask] = tp[nonzero_mask] / (
+            tp[nonzero_mask] + fp[nonzero_mask]
         )
 
         threshold_decreasing_order = np.argsort(-thresholds)
