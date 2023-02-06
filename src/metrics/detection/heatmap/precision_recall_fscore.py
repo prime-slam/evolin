@@ -20,6 +20,7 @@ from tqdm.contrib import tzip
 from typing import List, Tuple
 
 from src.metrics.detection.heatmap import heatmap_precision_recall_curve
+from src.metrics.detection.heatmap.basic_metrics import BasicMetrics
 from src.metrics.detection.heatmap.tp_indicator import (
     HeatmapTPIndicator,
 )
@@ -69,30 +70,32 @@ class PrecisionRecall:
         ):
             raise ValueError("All batches must be the same size")
 
-        tp = 0
-        fp = 0
-        gt_size = 0
-
-        def add_statistics(pred_lines, gt_lines, height, width):
-            nonlocal tp, fp, gt_size
+        def calculate_statistics(pred_lines, gt_lines, height, width):
             gt_map = rasterize(gt_lines, height, width)
             pred_map = rasterize(pred_lines, height, width)
             tp_indicators_map = self.indicator.indicate(gt_map, pred_map)
-            tp += tp_indicators_map.nnz
-            fp += pred_map.nnz - tp_indicators_map.nnz
-            gt_size += gt_map.nnz
+            tp = tp_indicators_map.nnz
+            fp = pred_map.nnz - tp_indicators_map.nnz
+            gt_size = gt_map.nnz
+            return BasicMetrics(tp, fp, gt_size)
 
-        Parallel(n_jobs=os.cpu_count(), require="sharedmem")(
-            delayed(add_statistics)(pred_lines, gt_lines, height, width)
-            for pred_lines, gt_lines, height, width in tzip(
-                pred_lines_batch,
-                gt_lines_batch,
-                heights_batch,
-                widths_batch,
+        stats = sum(
+            Parallel(n_jobs=os.cpu_count())(
+                delayed(calculate_statistics)(pred_lines, gt_lines, height, width)
+                for pred_lines, gt_lines, height, width in tzip(
+                    pred_lines_batch,
+                    gt_lines_batch,
+                    heights_batch,
+                    widths_batch,
+                )
             )
         )
 
-        recall = tp / gt_size
+        tp = stats.tp
+        fp = stats.fp
+        gt = stats.gt
+
+        recall = tp / gt
         precision = tp / (tp + fp) if tp + fp != 0 else 0
 
         return precision, recall
