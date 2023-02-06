@@ -62,26 +62,30 @@ class PrecisionRecallCurve:
         :return: lists of x (recall) and y (precision) coordinates
         """
 
-        total_tp_indicators = np.concatenate(
-            [
-                self.tp_indicator.indicate(pred_lines[np.argsort(-scores)], gt_lines)
-                for pred_lines, gt_lines, scores in zip(
-                    pred_lines_batch, gt_lines_batch, line_scores_batch
-                )
-            ]
-        )
+        total_tp_indicators = []
+        sorted_scores = []
+        for pred_lines, gt_lines, scores in zip(
+            pred_lines_batch, gt_lines_batch, line_scores_batch
+        ):
+            score_descending_order = np.argsort(-scores)
+            total_tp_indicators.append(
+                self.tp_indicator.indicate(pred_lines[score_descending_order], gt_lines)
+            )
+            sorted_scores.append(scores[score_descending_order])
 
+        sorted_scores = np.concatenate(sorted_scores)
+        total_tp_indicators = np.concatenate(total_tp_indicators)
         total_fp_indicators = ~total_tp_indicators
         gt_size = sum(len(gt_lines) for gt_lines in gt_lines_batch)
 
-        precision_descending_order = np.argsort(-np.concatenate(line_scores_batch))
+        precision_descending_order = np.argsort(-sorted_scores)
         total_tp_indicators = total_tp_indicators[precision_descending_order]
         total_fp_indicators = total_fp_indicators[precision_descending_order]
 
         tp = np.cumsum(total_tp_indicators)
         fp = np.cumsum(total_fp_indicators)
 
-        recall = tp / gt_size  # gt_size = tp + fn
+        recall = tp / gt_size
         precision = np.zeros(np.size(tp), dtype=float)
         nonzero_mask = tp + fp != 0
         precision[nonzero_mask] = tp[nonzero_mask] / (
