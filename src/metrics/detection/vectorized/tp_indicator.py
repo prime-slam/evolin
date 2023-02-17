@@ -32,9 +32,8 @@ class VectorizedTPIndicator:
         sort_predictions_by_distance: bool = False,
     ) -> ArrayN[bool]:
         if (
-            np.max(pred_lines) > EVALUATION_RESOLUTION
-            or np.max(gt_lines) > EVALUATION_RESOLUTION
-        ):
+            pred_lines.size != 0 and np.max(pred_lines) > EVALUATION_RESOLUTION
+        ) or np.max(gt_lines) > EVALUATION_RESOLUTION:
             raise ValueError(
                 f"The detection results and the ground truth "
                 f"lines should be scaled to the "

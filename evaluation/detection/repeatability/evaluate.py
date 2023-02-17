@@ -18,9 +18,12 @@ from pathlib import Path
 from typing import List, Optional
 
 from evaluation.common.parser import create_base_parser
-from evaluation.repeatability.evaluator import ScoredEvaluator, UnscoredEvaluator
-from evaluation.repeatability.geometry.io import read_poses
-from evaluation.repeatability.geometry.transform import (
+from evaluation.detection.repeatability.evaluator import (
+    ScoredEvaluator,
+    UnscoredEvaluator,
+)
+from evaluation.detection.repeatability.geometry.io import read_poses
+from evaluation.detection.repeatability.geometry.transform import (
     make_homogeneous_matrix,
 )
 from evaluation.common.metric_information.metric_info import MetricInfo
