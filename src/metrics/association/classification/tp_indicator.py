@@ -21,8 +21,9 @@ class TPIndicator:
     def indicate(
         self, pred_associations: ArrayNx2[int], gt_associations: ArrayNx2[int]
     ) -> ArrayN[bool]:
-        return (
-            (gt_associations[:, np.newaxis] == pred_associations)
-            .all(axis=-1)
-            .any(axis=0)
-        )
+        if len(gt_associations.shape) == 1:
+            gt_associations = gt_associations[None]
+        if gt_associations.size == 0:
+            return np.zeros(len(pred_associations), dtype=bool)
+        m = gt_associations[:, np.newaxis] == pred_associations
+        return m.all(axis=-1).any(axis=0)

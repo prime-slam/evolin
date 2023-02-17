@@ -17,7 +17,7 @@ import argparse
 from pathlib import Path
 from typing import List
 
-from evaluation.association.evaluator import ClassificationEvaluator
+from evaluation.association.classification.evaluator import ClassificationEvaluator
 from evaluation.common.metric_information.metric_info import (
     MetricInfo,
 )

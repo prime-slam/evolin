@@ -58,10 +58,11 @@ class PrecisionRecall:
         for pred_associations, gt_associations in tzip(
             pred_associations_batch, gt_associations_batch
         ):
-            tp = self.indicator.indicate(pred_associations, gt_associations).sum()
+            if len(pred_associations) != 0:
+                tp = self.indicator.indicate(pred_associations, gt_associations).sum()
+                total_tp += tp
+                total_fp += len(pred_associations) - tp
             gt = len(gt_associations)
-            total_tp += tp
-            total_fp += len(pred_associations) - tp
             total_gt_size += gt
 
         recall = total_tp / total_gt_size if total_gt_size != 0 else 0

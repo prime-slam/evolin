@@ -17,7 +17,7 @@ import numpy as np
 from pathlib import Path
 from scipy.spatial.transform import Rotation as R
 
-from evaluation.detection.repeatability.geometry.transform import (
+from evaluation.common.geometry.transform import (
     make_euclidean_transform,
 )
 
