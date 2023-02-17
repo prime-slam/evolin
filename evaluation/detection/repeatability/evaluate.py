@@ -22,8 +22,8 @@ from evaluation.detection.repeatability.evaluator import (
     ScoredEvaluator,
     UnscoredEvaluator,
 )
-from evaluation.detection.repeatability.geometry.io import read_poses
-from evaluation.detection.repeatability.geometry.transform import (
+from evaluation.common.geometry.io import read_poses
+from evaluation.common.geometry.transform import (
     make_homogeneous_matrix,
 )
 from evaluation.common.metric_information.metric_info import MetricInfo

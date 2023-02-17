@@ -49,3 +49,11 @@ class FramesStepInfo(AdditionalMetricInfo):
 
     def get_name(self):
         return "frames_step_information"
+
+
+@dataclass
+class ThresholdInfo(AdditionalMetricInfo):
+    threshold: float
+
+    def get_name(self):
+        return "threshold_information"

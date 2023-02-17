@@ -30,7 +30,7 @@ from evaluation.common.metric_information.metric_info import (
     MetricInfo,
     SimpleMetricInfo,
 )
-from evaluation.detection.repeatability.geometry.project_lines import (
+from evaluation.common.geometry.project_lines import (
     make_projected_line_pairs,
 )
 from evaluation.common.utils import filter_lines_by_score
