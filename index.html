@@ -1,1 +1,151 @@
-<h1>Line detection & association</h1>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EVOLIN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+
+</head>
+<body>
+<div class="px-4 py-5 my-5 text-center">
+    <h1 class="display-5 fw-bold">EVOLIN Benchmark: Evaluation of Line Detection and Association</h1>
+    <h5><p>Kirill Ivanov<sup>1,2</sup>,
+        Anastasiia Kornilova<sup>1</sup>,
+        Gonzalo Ferrer<sup>1</sup></p></h5>
+    <p><sup>1</sup> Skolkovo Institute of Science and Technology (Skoltech), Center for AI Technology (CAIT)<br>
+        <sup>2</sup> Software Engineering Department, Saint Petersburg State University<br>
+    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a class="btn btn-outline-secondary btn-lg px-4" href="" target="_blank" role="button">Paper</a>
+        <a class="btn btn-outline-secondary btn-lg px-4" href="https://github.com/prime-slam/evolin" target="_blank"
+           role="button">Code</a>
+    </div>
+    <br>
+    <div class="col-lg-8 mx-auto">
+        <div class="row">
+            <div class="col-lg-3 col-md-3 col-xs-6">
+                <img src="static/images/lr_165.svg" class="img-fluid border rounded-2 shadow-lg mb-4" alt="Annotation"
+                     loading="lazy">
+            </div>
+            <div class="col-lg-3 col-md-3 col-xs-6">
+                <img src="static/images/of_416.svg" class="img-fluid border rounded-2 shadow-lg mb-4" alt="Annotation"
+                     loading="lazy">
+            </div>
+            <div class="col-lg-3 col-md-3 col-xs-6">
+                <img src="static/images/desk_4.svg" class="img-fluid border rounded-2 shadow-lg mb-4" alt="Annotation"
+                     loading="lazy">
+            </div>
+            <div class="col-lg-3 col-md-3 col-xs-6">
+                <img src="static/images/cabinet_927.svg" class="img-fluid border rounded-2 shadow-lg mb-4"
+                     alt="Annotation" loading="lazy">
+            </div>
+            <p>Examples of annotated lines (green) in ICL NUIM and TUM RGBD datasets from our benchmark.
+                Red indicates elements that were not annotated: reflections, elements that form lines from a certain
+                angle, and shadows</p>
+        </div>
+    </div>
+</div>
+
+<div class="col-lg-8 mx-auto">
+    <h3 class="text-center">Abstract</h3>
+    <p class="lead">Lines are interesting geometrical features commonly seen in
+        indoor and urban environments.
+        There is missing a complete benchmark where one can evaluate lines from
+        a sequential stream of images in all its stages: Line detection, Line Association and Pose error.
+        To do so, we present a complete and exhaustive benchmark for visual lines in a
+        SLAM front-end, both for RGB and RGBD, by providing a plethora of complementary metrics.
+        We have also labelled data from well-known SLAM datasets in order to have
+        all in one poses and accurately annotated lines.
+        In particular, we have evaluated 17 line detection algorithms,
+        5 line associations methods and the resultant pose error for aligning
+        a pair of frames with several combinations of detector-association.
+        We have packaged all methods and evaluations metrics and m
+        ade them publicly available.</p>
+</div>
+<br>
+
+<div class="col-lg-8 mx-auto">
+    <h3 class="text-center">Algorithms</h3>
+    <p class="lead">We have adapted and docker-packaged popular line detection and association algorithms.
+        The code is available in our <a href="https://github.com/prime-slam/line-detection-association-dockers"
+                                        target="_blank">GitHub repository</a>.</p>
+</div>
+<br>
+
+<div class="col-lg-8 mx-auto">
+    <h3 class="text-center">Metrics</h3>
+    <p class="lead">We also implemented a <a href="https://github.com/prime-slam/evolin" target="_blank">library</a>
+        with detection and association metrics,
+        including metrics based on a heat map, metrics based on a vector representation of a line,
+        and repeatability metrics.
+        In addition, we implemented an algorithm for line-based relative pose estimation using the framework,
+        which allowed us to implement relative pose estimation metrics..</p>
+</div>
+<br>
+
+<div class="col-lg-8 mx-auto">
+    <h3 class="text-center">Datasets</h3>
+    <p class="lead">To evaluate line detectors and associators,
+        we annotated <b>lr kt2</b> and <b>of kt2</b> trajectories from ICL NUIM,
+        as well as <b>fr3/cabinet</b> and <b>fr1/desk</b> trajectories from TUM RGB-D.
+        Only breaking segments have been annotated, such as ceilings, floors, walls, doors,
+        and furniture linear elements. The datasets can be downloaded <a href="" target="_blank">here</a>.</p>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Dataset</th>
+            <th scope="col">Total lines</th>
+            <th scope="col">Total frames</th>
+            <th scope="col">Lines per Frame</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row">lr kt2</th>
+            <td>189</td>
+            <td>881</td>
+            <td>47</td>
+        </tr>
+        <tr>
+            <th scope="row">of kt2</th>
+            <td>346</td>
+            <td>881</td>
+            <td>78</td>
+        </tr>
+        <tr>
+            <th scope="row">fr3/cabinet</th>
+            <td>46</td>
+            <td>1147</td>
+            <td>13</td>
+        </tr>
+        <tr>
+            <th scope="row">fr1/desk</th>
+            <td>184</td>
+            <td>613</td>
+            <td>51</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<br>
+
+<div class="bg-dark text-secondary px-4 py-5">
+    <div class="py-5">
+        <h1 class="display-5 fw-bold text-white text-center">Citing this work</h1>
+        <p class="fs-5 mb-4 text-center">If you find this work useful in your research, please consider citing:</p>
+        <div class="col-lg-8 fs-5 mb-4 mx-auto text-justify border border-secondary rounded">
+            <p class="px-3 py-3" id="a" onclick="copyDivToClipboard()">@article{evolin2023,<br>
+                title={EVOLIN Benchmark: Evaluation of Line Detection and Association},<br>
+                author={Kirill Ivanov, Gonzalo Ferrer, and Anastasiia Kornilova},<br>
+                journal={arXiv preprint },<br>
+                year={2023}}</p>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+        crossorigin="anonymous"></script>
+</body>
+</html>
