@@ -13,10 +13,11 @@
 # limitations under the License.
 
 import numpy as np
+import sys
 
 from pathlib import Path
 from skimage.io import imread
-from typing import List
+from typing import List, Tuple
 
 from evaluation.common.evaluator_base import Evaluator
 from evaluation.common.geometry.project_lines import get_3d_lines
@@ -47,6 +48,7 @@ class PoseErrorEvaluator(Evaluator):
         calibration_matrix: Array4x4[float],
         pose_error_auc_thresholds: List[float],
         depth_scaler: float = 5000,
+        pose_failed_value: float = sys.float_info.max,
     ):
         self.lines_batch = lines_batch
         self.associations_batch = associations_batch
@@ -63,38 +65,64 @@ class PoseErrorEvaluator(Evaluator):
         self.calibration_matrix = calibration_matrix
         self.depth_scaler = depth_scaler
         self.pose_error_auc_thresholds = pose_error_auc_thresholds
+        self.pose_failed_value = pose_failed_value
 
     def evaluate(self) -> List[MetricInfo]:
-        angular_rotation_errors = []
+        rotation_errors = []
         angular_translation_errors = []
-        absolute_translation_errors = []
+        translation_errors = []
         est_relative_poses = self.__estimate_relative_poses()
 
-        for gt_pose, est_pose in zip(self.gt_relative_poses, est_relative_poses):
-            if est_pose is not None:
-                (
-                    angular_translation_error_,
-                    angular_rotation_error_,
-                    absolute_translation_error_,
-                ) = pose_error(gt_pose, est_pose)
-                if not np.isnan(angular_translation_error_) and not np.isnan(
-                    angular_rotation_error_
-                ):
-                    angular_rotation_errors.append(angular_rotation_error_)
-                    angular_translation_errors.append(angular_translation_error_)
-                if not np.isnan(absolute_translation_error_):
-                    absolute_translation_errors.append(absolute_translation_error_)
+        for gt_pose, (est_first_to_second_pose, est_second_to_first_pose) in zip(
+            self.gt_relative_poses, est_relative_poses
+        ):
+            first_to_second_angular_translation_error = self.pose_failed_value
+            first_to_second_rotation_error = self.pose_failed_value
+            first_to_second_translation_error = self.pose_failed_value
 
-        angular_rotation_errors = np.array(angular_rotation_errors)
+            second_to_first_angular_translation_error = self.pose_failed_value
+            second_to_first_rotation_error = self.pose_failed_value
+            second_to_first_translation_error = self.pose_failed_value
+
+            if est_first_to_second_pose is not None:
+                (
+                    first_to_second_angular_translation_error,
+                    first_to_second_rotation_error,
+                    first_to_second_translation_error,
+                ) = pose_error(gt_pose, est_first_to_second_pose)
+            if est_second_to_first_pose is not None:
+                (
+                    second_to_first_angular_translation_error,
+                    second_to_first_rotation_error,
+                    second_to_first_translation_error,
+                ) = pose_error(np.linalg.inv(gt_pose), est_second_to_first_pose)
+
+            angular_translation_error_ = self.__calculate_average_error(
+                first_to_second_angular_translation_error,
+                second_to_first_angular_translation_error,
+            )
+            rotation_error_ = self.__calculate_average_error(
+                first_to_second_rotation_error,
+                second_to_first_rotation_error,
+            )
+            translation_error_ = self.__calculate_average_error(
+                first_to_second_translation_error,
+                second_to_first_translation_error,
+            )
+
+            rotation_errors.append(rotation_error_)
+            angular_translation_errors.append(angular_translation_error_)
+            translation_errors.append(translation_error_)
+
+        rotation_errors = np.array(rotation_errors)
         angular_translation_errors = np.array(angular_translation_errors)
-        absolute_translation_errors = np.array(absolute_translation_errors)
+        translation_errors = np.array(translation_errors)
 
         frame_step_info = FramesStepInfo(step=self.frames_step)
-
         results = [
             SimpleMetricInfo(
                 name="median_angular_rotation_error",
-                value=np.median(angular_rotation_errors),
+                value=np.median(rotation_errors),
                 additional_information=[frame_step_info],
             ),
             SimpleMetricInfo(
@@ -104,7 +132,7 @@ class PoseErrorEvaluator(Evaluator):
             ),
             SimpleMetricInfo(
                 name="median_absolute_translation_error",
-                value=np.median(absolute_translation_errors),
+                value=np.median(translation_errors),
                 additional_information=[frame_step_info],
             ),
         ]
@@ -112,7 +140,7 @@ class PoseErrorEvaluator(Evaluator):
         for threshold in self.pose_error_auc_thresholds:
             threshold_info = ThresholdInfo(threshold=threshold)
             auc = angular_pose_error_auc(
-                angular_rotation_errors, angular_translation_errors, threshold
+                rotation_errors, angular_translation_errors, threshold
             )
             results.append(
                 SimpleMetricInfo(
@@ -124,14 +152,29 @@ class PoseErrorEvaluator(Evaluator):
 
         return results
 
-    def __estimate_relative_poses(self):
+    def __calculate_average_error(self, first_error, second_error):
+        return (
+            self.pose_failed_value
+            if (
+                np.isnan(first_error)
+                or np.isnan(second_error)
+                or np.isinf(first_error)
+                or np.isinf(second_error)
+            )
+            else (first_error + second_error) / 2
+        )
+
+    def __estimate_relative_poses(
+        self,
+    ) -> List[Tuple[Array4x4[float], Array4x4[float]]]:
         est_relative_poses = []
         for associations, frames_pair in zip(
             self.associations_batch, self.frames_pairs
         ):
             first_frame, second_frame = frames_pair
-            pose = None
+            first_to_second_pose, second_to_first_pose = None, None
 
+            # at least three associations are needed to calculate a pose
             if associations.size > 2:
                 first_index = associations[:, 0]
                 second_index = associations[:, 1]
@@ -143,6 +186,7 @@ class PoseErrorEvaluator(Evaluator):
                 )
                 first_height, first_width = first_depth.shape[:2]
                 second_height, second_width = first_depth.shape[:2]
+                lines_2d_shape = (-1, 2, 2)
                 first_lines = (
                     clip_lines(
                         self.lines_batch[first_frame],
@@ -150,7 +194,7 @@ class PoseErrorEvaluator(Evaluator):
                         height=first_height,
                     )
                     .astype(int)
-                    .reshape((-1, 2, 2))[first_index]
+                    .reshape(lines_2d_shape)[first_index]
                 )
                 second_lines = (
                     clip_lines(
@@ -159,14 +203,49 @@ class PoseErrorEvaluator(Evaluator):
                         height=second_height,
                     )
                     .astype(int)
-                    .reshape((-1, 2, 2))[second_index]
+                    .reshape(lines_2d_shape)[second_index]
                 )
-                lines_3d_2 = get_3d_lines(
+
+                # filter out lines with zero depth at least at one endpoint
+                first_lines_3d = get_3d_lines(
+                    first_lines, first_depth, self.calibration_matrix
+                )
+                second_lines_3d = get_3d_lines(
                     second_lines, second_depth, self.calibration_matrix
                 )
-                pose = RelativePoseEstimator().estimate(
-                    first_lines, second_lines, lines_3d_2, self.calibration_matrix
+                first_value_mask = ~np.logical_or.reduce(
+                    np.isinf(first_lines_3d) | np.isnan(first_lines_3d),
+                    axis=-1,
                 )
-            est_relative_poses.append(pose)
+                second_value_mask = ~np.logical_or.reduce(
+                    np.isinf(second_lines_3d) | np.isnan(second_lines_3d),
+                    axis=-1,
+                )
+                value_mask = first_value_mask & second_value_mask
+
+                # at least three line correspondences are needed to calculate a pose
+                if np.sum(value_mask) > 2:
+                    lines_3d_shape = (-1, 2, 3)
+                    first_lines_3d = first_lines_3d[value_mask].reshape(lines_3d_shape)
+                    second_lines_3d = second_lines_3d[value_mask].reshape(
+                        lines_3d_shape
+                    )
+                    first_lines = first_lines[value_mask]
+                    second_lines = second_lines[value_mask]
+
+                    first_to_second_pose = RelativePoseEstimator().estimate(
+                        first_lines,
+                        second_lines,
+                        second_lines_3d,
+                        self.calibration_matrix,
+                    )
+                    second_to_first_pose = RelativePoseEstimator().estimate(
+                        second_lines,
+                        first_lines,
+                        first_lines_3d,
+                        self.calibration_matrix,
+                    )
+
+            est_relative_poses.append((first_to_second_pose, second_to_first_pose))
 
         return est_relative_poses

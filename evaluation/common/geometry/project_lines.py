@@ -20,14 +20,23 @@ from skimage import io
 
 from evaluation.common.utils import clip_lines, is_nonzero_length, scale_lines
 from src.metrics.detection.vectorized import EVALUATION_RESOLUTION
-from src.typing import ArrayNx4, Array4x4, ArrayNxM, ArrayNx2, ArrayNxN, ArrayNx2x2
+from src.typing import (
+    ArrayNx4,
+    Array4x4,
+    ArrayNxM,
+    ArrayNx2,
+    ArrayNxN,
+    ArrayNx2x2,
+    ArrayNx3,
+    ArrayNx6,
+)
 
 
 def get_3d_points(
     points: ArrayNx2[float],
     depth_map: ArrayNxM[float],
     calibration_matrix: Array4x4[float],
-):
+) -> ArrayNx3[float]:
     fx = calibration_matrix[0, 0]
     fy = calibration_matrix[1, 1]
     cx = calibration_matrix[0, 2]
@@ -39,8 +48,10 @@ def get_3d_points(
     x_3d = np.zeros(len(z_3d))
     y_3d = np.zeros(len(z_3d))
     x_3d[nonzero_depths] = (x[nonzero_depths] - cx) / fx * z_3d[nonzero_depths]
-    x_3d[~nonzero_depths] = np.inf
     y_3d[nonzero_depths] = (y[nonzero_depths] - cy) / fy * z_3d[nonzero_depths]
+    # set np.inf if depth is zero
+    z_3d[~nonzero_depths] = np.inf
+    x_3d[~nonzero_depths] = np.inf
     y_3d[~nonzero_depths] = np.inf
 
     return np.column_stack([x_3d, y_3d, z_3d])
@@ -50,23 +61,19 @@ def get_3d_lines(
     lines: ArrayNx2x2[float],
     depth_map: ArrayNxM[float],
     calibration_matrix: Array4x4[float],
-):
+) -> ArrayNx6[float]:
     start_points = lines[:, 0]
     end_points = lines[:, 1]
     start_points_3d = get_3d_points(start_points, depth_map, calibration_matrix)
     end_points_3d = get_3d_points(end_points, depth_map, calibration_matrix)
     lines_3d = np.column_stack([start_points_3d, end_points_3d])
-    has_nan = np.logical_or.reduce(
-        np.isnan(lines_3d),
-        axis=-1,
-    )
 
-    return lines_3d[~has_nan].reshape(-1, 2, 3)
+    return lines_3d
 
 
 def project_points(
     points: ArrayNx2[float], projection_matrix: Array4x4[float], depths: ArrayNx2
-):
+) -> ArrayNx2[float]:
     ones_column = np.ones((len(points), 1))
     points_homo = np.concatenate(
         (points, ones_column, 1 / depths.reshape(-1, 1)), axis=1

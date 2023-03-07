@@ -28,7 +28,8 @@ def read_csv_batch(
 ) -> List[np.ndarray]:
     paths_batch = sorted(batch_path.iterdir())
     index = range(len(paths_batch)) if index is None else index
-    return [np.genfromtxt(paths_batch[i], delimiter=delimiter) for i in index]
+    batch = [np.genfromtxt(paths_batch[i], delimiter=delimiter) for i in index]
+    return batch
 
 
 def clip_lines(lines: ArrayNx4[float], height: float, width: float) -> ArrayNx4[float]:
@@ -57,7 +58,7 @@ def filter_lines_by_score(
     lines_batch: List[ArrayNx4[float]],
     scores_batch: List[ArrayN[float]],
     threshold: float,
-):
+) -> List[ArrayNx4[float]]:
     return [
         lines[scores > threshold] for lines, scores in zip(lines_batch, scores_batch)
     ]
@@ -72,7 +73,7 @@ def create_image_sizes_batch(images_path: Path) -> ArrayNx2[float]:
     return sizes
 
 
-def write_metrics(output: Path, metrics: List[MetricInfo]):
+def write_metrics(output: Path, metrics: List[MetricInfo]) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     dicts = [metric_info.to_dict() for metric_info in metrics]
     with open(output, "w") as out:

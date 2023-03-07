@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import Tuple
 
 import numpy as np
 
@@ -26,7 +27,7 @@ __all__ = [
 
 def angular_rotation_error(
     first_rotation: Array3x3[float], second_rotation: Array3x3[float]
-):
+) -> float:
     """
     Calculates angular rotation error
     :param first_rotation: first rotation matrix
@@ -40,7 +41,7 @@ def angular_rotation_error(
 
 def angular_translation_error(
     first_translation: Array3[float], second_translation: Array3[float]
-):
+) -> float:
     """
     Calculates angular translation error
     :param first_translation: first translation vector
@@ -53,7 +54,9 @@ def angular_translation_error(
     )
 
 
-def absolute_translation_error(pose_gt: Array4x4[float], pose_est: Array4x4[float]):
+def absolute_translation_error(
+    pose_gt: Array4x4[float], pose_est: Array4x4[float]
+) -> float:
     """
     Calculates absolute translation error
     :param pose_gt: ground truth transformation matrix
@@ -66,7 +69,7 @@ def absolute_translation_error(pose_gt: Array4x4[float], pose_est: Array4x4[floa
     return np.linalg.norm(delta_translation)
 
 
-def pose_error(pose_gt, pose_est):
+def pose_error(pose_gt, pose_est) -> Tuple[float, float, float]:
     """
     Calculates pose errors
     :param pose_gt: ground truth transformation matrix
