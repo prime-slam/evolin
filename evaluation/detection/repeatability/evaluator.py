@@ -155,7 +155,7 @@ class ScoredEvaluator(Evaluator):
 
         results = list(
             itertools.chain.from_iterable(
-                Parallel(n_jobs=os.cpu_count() // 2)(
+                Parallel(n_jobs=os.cpu_count())(
                     delayed(calculate)(score_threshold)
                     for score_threshold in self.score_thresholds
                 )

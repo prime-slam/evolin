@@ -54,6 +54,9 @@ def calculate_repeatability_metrics(
     score_thresholds = (
         np.genfromtxt(score_thresholds_path).tolist() if use_scores else None
     )
+    # if score_thresholds is a single value then convert it to a single value list
+    if isinstance(score_thresholds, float):
+        score_thresholds = [score_thresholds]
     depth_maps_paths = sorted(depth_maps_batch_path.iterdir())
     depth_maps_paths = [depth_maps_paths[i] for i in depth_maps_index]
 
