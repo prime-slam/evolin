@@ -1,4 +1,4 @@
-name: Check code style and run tests
+name: tests
 
 on:
   [ push, pull_request ]
