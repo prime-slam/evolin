@@ -7,7 +7,7 @@ The result of the script is a `.json` file containing the specified metrics.
 It is necessary to provide folders containing lines, associations between frame pairs, and depth maps to calculate metrics. The file with associations must contain records of the form `i,j`,
 where `i` corresponds to the index in the line array of the first frame,
 and `j` corresponds to the index in the line array of the second frame.
-Also, a file containing poses for the corresponding frame depth maps in TUM format is needed.
+Also, a file containing poses for the corresponding frame depth maps in [TUM format](https://cvg.cit.tum.de/data/datasets/rgbd-dataset/file_formats) is needed.
 In addition, it is necessary to provide a file containing a calibration matrix
 and a file with associations between depth frames and images in which lines were detected.
 Examples can be found in `example` folder.
