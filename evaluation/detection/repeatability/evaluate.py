@@ -34,7 +34,7 @@ def calculate_repeatability_metrics(
     pred_lines_batch_path: Path,
     depth_maps_batch_path: Path,
     poses_path: Path,
-    associations_path: Path,
+    depth_associations_path: Path,
     calibration_matrix_path: Path,
     distance_thresholds: List[float],
     frames_steps: List[int],
@@ -43,7 +43,7 @@ def calculate_repeatability_metrics(
 ) -> List[MetricInfo]:
     use_scores = scores_batch_path is not None
 
-    associations = np.genfromtxt(associations_path, dtype=int)
+    associations = np.genfromtxt(depth_associations_path, dtype=int)
     images_index = associations[..., 0]
     depth_maps_index = associations[..., 1]
 
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--associations",
+        "--depth-associations",
         "-a",
         metavar="PATH",
         help="path to the file with associations between images and depth maps",
@@ -157,7 +157,7 @@ if __name__ == "__main__":
         pred_lines_batch_path=Path(args.pred_lines),
         depth_maps_batch_path=Path(args.depths),
         poses_path=Path(args.poses),
-        associations_path=Path(args.associations),
+        depth_associations_path=Path(args.depth_associations),
         calibration_matrix_path=Path(args.calibration_matrix),
         distance_thresholds=args.distance_thresholds,
         frames_steps=args.frames_steps,

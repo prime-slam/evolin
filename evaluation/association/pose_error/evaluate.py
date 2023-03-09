@@ -117,7 +117,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--pose-error-auc-thresholds",
         "-t",
-        metavar="SEQ",
+        metavar="NUM",
         nargs="+",
         type=float,
         help="thresholds in degrees for angular error auc calculation",
