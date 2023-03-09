@@ -46,10 +46,8 @@ The datasets can be downloaded here.
 ## Get detection and association results
 A list of algorithms and instructions for running them can be found in our [repository](https://github.com/prime-slam/line-detection-association-dockers).
 
-## Usage
-// TODO
 ## Evaluation
-// TODO
+The scripts required for evaluation and examples, as well as the documentation are located in `evaluation` folder. The results of the evaluation of adapted detection and association algorithms can be found in our article.
 ## Cite us
 If you find this work useful in your research, please consider citing:
 ```bibtex
