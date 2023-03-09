@@ -15,6 +15,8 @@
 import g2o
 import numpy as np
 
+from src.typing import Array4x4
+
 
 class RelativePoseEstimator:
     def __init__(self):
@@ -30,7 +32,7 @@ class RelativePoseEstimator:
         second_lines_3d,
         calibration_matrix,
         first_to_second=True,
-    ):
+    ) -> Array4x4[float]:
         optimizer = self.__create_optimizer()
         v1 = g2o.VertexSE3Expmap()
         v1.set_id(0)
