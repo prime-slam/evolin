@@ -9,7 +9,7 @@
 EVOLIN is a benchmark for evaluation of line detection and association results. We provide a set of docker-packed line detection and association algorithms, metrics to evaluate them, and line-annotated data.
 
 The following detection metrics are implemented:
-* Heatmap-based and vectorized classification:
+* Heatmap-based and vectorized classification
   * precision
   * recall
   * F-score
@@ -27,6 +27,7 @@ The following association metrics are implemented:
   * angular translation error
   * absolute translation error
   * angular rotation error
+  * pose error AUC
 
 Additional information can be found on our [web page](https://prime-slam.github.io/evolin/) and in the article.
 
