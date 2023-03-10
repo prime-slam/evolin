@@ -53,19 +53,9 @@ The results of the evaluation of adapted detection and association algorithms ca
 ## Cite us
 If you find this work useful in your research, please consider citing:
 ```bibtex
-@misc{https://doi.org/10.48550/arxiv.2303.05162,
-  title = {EVOLIN Benchmark: Evaluation of Line Detection and Association},
-  doi = {10.48550/ARXIV.2303.05162},
-  url = {https://arxiv.org/abs/2303.05162},
-  author = {Ivanov, Kirill and Ferrer, Gonzalo and Kornilova, Anastasiia},
-  keywords = {
-      Computer Vision and Pattern Recognition (cs.CV),
-      Robotics (cs.RO),
-      FOS: Computer and information sciences,
-      FOS: Computer and information sciences
-  },
-  publisher = {arXiv},
-  year = {2023},
-  copyright = {Creative Commons Attribution Non Commercial Share Alike 4.0 International}
-}
+@article{evolin2023,
+title={EVOLIN Benchmark: Evaluation of Line Detection and Association},
+author={Kirill Ivanov, Gonzalo Ferrer, and Anastasiia Kornilova},
+journal={arXiv preprint arXiv:2303.05162},
+year={2023}}
 ```
