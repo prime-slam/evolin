@@ -7,7 +7,7 @@
 [![License: Apache License 2.0](https://img.shields.io/github/license/saltstack/salt)](https://opensource.org/license/apache-2-0/)
 
 EVOLIN is a benchmark for evaluation of line detection and association results. We provide a set of docker-packed line detection and association algorithms, metrics to evaluate them, and line-annotated data.
-Additional information can be found on our [web page](https://prime-slam.github.io/evolin/) and in the article.
+Additional information can be found on our [web page](https://prime-slam.github.io/evolin/) and in the [article](https://arxiv.org/abs/2303.05162).
 
 ## Installation
 1. Clone this repository.
@@ -48,13 +48,24 @@ The following association metrics are implemented:
 A list of algorithms and instructions for running them can be found in our [repository](https://github.com/prime-slam/line-detection-association-dockers).
 
 ## Evaluation
-The scripts required for evaluation and examples, as well as the documentation are located in `evaluation` folder. The results of the evaluation of adapted detection and association algorithms can be found in our article.
+The scripts required for evaluation and examples, as well as the documentation are located in `evaluation` folder.
+The results of the evaluation of adapted detection and association algorithms can be found in our [article](https://arxiv.org/abs/2303.05162).
 ## Cite us
 If you find this work useful in your research, please consider citing:
 ```bibtex
-@article{evolin2023,
-title={EVOLIN Benchmark: Evaluation of Line Detection and Association},
-author={Kirill Ivanov, Gonzalo Ferrer, and Anastasiia Kornilova},
-journal={arXiv preprint},
-year={2023}
+@misc{https://doi.org/10.48550/arxiv.2303.05162,
+  title = {EVOLIN Benchmark: Evaluation of Line Detection and Association},
+  doi = {10.48550/ARXIV.2303.05162},
+  url = {https://arxiv.org/abs/2303.05162},
+  author = {Ivanov, Kirill and Ferrer, Gonzalo and Kornilova, Anastasiia},
+  keywords = {
+      Computer Vision and Pattern Recognition (cs.CV),
+      Robotics (cs.RO),
+      FOS: Computer and information sciences,
+      FOS: Computer and information sciences
+  },
+  publisher = {arXiv},
+  year = {2023},
+  copyright = {Creative Commons Attribution Non Commercial Share Alike 4.0 International}
 }
+```
