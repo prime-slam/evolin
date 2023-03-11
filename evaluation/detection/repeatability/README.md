@@ -55,41 +55,27 @@ arguments:
 ### Examples
 **Lines with scores**
 ```bash
-python evaluate.py
--p
-./example/scored_lines/lines
--s
-./example/scored_lines/scores
--S
-./example/scored_lines/score_thresholds.txt
--D
-./example/depth
--P
-./example/poses.txt
--a
-./example/depth_associations.txt
--c
-./example/calibration_matrix.txt
--d 5 10 15
--f 1
--o
-./output
+python evaluate.py \
+-p ./example/scored_lines/lines \
+-s ./example/scored_lines/scores \
+-S ./example/scored_lines/score_thresholds.txt \
+-D ./example/depth \
+-P ./example/poses.txt \
+-a ./example/depth_associations.txt \
+-c ./example/calibration_matrix.txt \
+-d 5 10 15 \
+-f 1 \
+-o ./output
 ```
 **Lines without scores**
 ```bash
-python evaluate.py
--p
-./example/unscored_lines
--D
-./example/depth
--P
-./example/poses.txt
--a
-./example/depth_associations.txt
--c
-./example/calibration_matrix.txt
--d 5 10 15
--f 1
--o
-./output
+python evaluate.py \
+-p ./example/unscored_lines \
+-D ./example/depth \
+-P ./example/poses.txt \
+-a ./example/depth_associations.txt \
+-c ./example/calibration_matrix.txt \
+-d 5 10 15 \
+-f 1 \
+-o ./output
 ```

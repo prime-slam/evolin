@@ -32,11 +32,8 @@ arguments:
 
 ### Example
 ```bash
-python evaluate.py
--p
-./example/pred_associations
--g
-./example/gt_associations
--o
-./output
+python evaluate.py \
+-p ./example/pred_associations \
+-g ./example/gt_associations \
+-o ./output
 ```

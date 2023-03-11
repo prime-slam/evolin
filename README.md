@@ -10,8 +10,31 @@ EVOLIN is a benchmark for evaluation of line detection and association results. 
 Additional information can be found on our [web page](https://prime-slam.github.io/evolin/) and in the [article](https://arxiv.org/abs/2303.05162).
 
 ## Installation
-1. Clone this repository.
-2. Install `g2opy` as described [here](https://github.com/uoip/g2opy).
+
+### Dependencies
+
+1. Install dependencies
+```bash
+sudo apt update \
+&& sudo apt upgrade \
+&& sudo apt install --no-install-recommends -y libeigen3-dev cmake
+```
+2. Install our custom `g2opy`:
+```bash
+git clone https://github.com/anastasiia-kornilova/g2opy
+cd g2opy
+git checkout lines_opt
+mkdir build
+cd build
+cmake ..
+make -j8
+cd ..
+python setup.py install
+```
+3. Clone this repository
+```bash
+git clone https://github.com/prime-slam/evolin
+```
 
 ## Annotated data
 To evaluate line detectors and associators,

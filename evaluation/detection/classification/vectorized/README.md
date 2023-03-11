@@ -45,29 +45,19 @@ arguments:
 ### Examples
 **Lines with scores**
 ```bash
-python evaluate.py
--p
-./example/scored_lines/lines
--g
-./example/gt_lines
--s
-./example/scored_lines/scores
--S
-./example/scored_lines/score_thresholds.txt
--i
-./example/images
--o
-./output
+python evaluate.py \
+-p ./example/scored_lines/lines \
+-g ./example/gt_lines \
+-s ./example/scored_lines/scores \
+-S ./example/scored_lines/score_thresholds.txt \
+-i ./example/images \
+-o ./output
 ```
 **Lines without scores**
 ```bash
-python evaluate.py
--p
-./example/unscored_lines
--g
-./example/gt_lines
--i
-./example/images
--o
-./output
+python evaluate.py \
+-p ./example/unscored_lines \
+-g ./example/gt_lines \
+-i ./example/images \
+-o ./output
 ```

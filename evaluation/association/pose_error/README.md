@@ -47,21 +47,13 @@ arguments:
 
 ### Example
 ```bash
-python evaluate.py
--l
-./example/lines
--a
-./example/associations
--d
-./example/depth
--p
-./example/poses.txt
--A
-./example/depth_associations.txt
--c
-./example/calibration_matrix.txt
--t
-1 3
--o
-./output
+python evaluate.py \
+-l ./example/lines \
+-a ./example/associations \
+-d ./example/depth \
+-p ./example/poses.txt \
+-A ./example/depth_associations.txt \
+-c ./example/calibration_matrix.txt \
+-t 1 3 \
+-o ./output
 ```
