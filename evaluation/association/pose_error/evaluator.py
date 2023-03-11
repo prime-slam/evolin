@@ -53,7 +53,7 @@ class PoseErrorEvaluator(Evaluator):
         self.lines_batch = lines_batch
         self.associations_batch = associations_batch
         self.images_number = len(depth_maps_paths)
-        self.frames_step = self.images_number - len(associations_batch) + 1
+        self.frames_step = self.images_number - len(associations_batch)
         self.frames_pairs = list(
             zip(range(self.images_number), range(self.frames_step, self.images_number))
         )
