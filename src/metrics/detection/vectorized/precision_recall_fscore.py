@@ -14,7 +14,7 @@
 
 from typing import List, Tuple, Union
 
-from src.metrics.detection.vectorized import DISTANCE_NAMES
+from src.metrics.detection.vectorized import DISTANCE_NAMES, EVALUATION_RESOLUTION
 from src.metrics.detection.vectorized.distance.distance import Distance
 from src.metrics.detection.vectorized.distance.distance_factory import (
     DistanceFactory,
@@ -44,8 +44,11 @@ class PrecisionRecall:
         tp_indicator: VectorizedTPIndicator,
     ):
         """
-        :param tp_indicator: VectorizedTPIndicator object that indicates
-        whether line is true positive or not
+        Parameters
+        ----------
+        tp_indicator
+            VectorizedTPIndicator object that indicates
+            whether line is true positive or not
         """
         self.tp_indicator = tp_indicator
 
@@ -55,10 +58,19 @@ class PrecisionRecall:
         gt_lines_batch: List[ArrayNx4[float]],
     ) -> Tuple[float, float]:
         """
-        Calculates precision and recall
-        :param pred_lines_batch: list of predicted lines for each image
-        :param gt_lines_batch: list of ground truth lines for each image
-        :return: precision and recall values
+        Calculates vectorized precision and recall.
+
+        Parameters
+        ----------
+        pred_lines_batch
+            list of predicted lines for each image
+        gt_lines_batch
+            list of ground truth lines for each image
+
+        Returns
+        -------
+        values
+            precision and recall
         """
 
         tp = sum(
@@ -77,7 +89,7 @@ class PrecisionRecall:
         return precision, recall
 
 
-@docstring_arg(DISTANCE_NAMES)
+@docstring_arg(DISTANCE_NAMES, EVALUATION_RESOLUTION)
 def vectorized_precision_recall_fscore(
     pred_lines_batch: List[ArrayNx4[float]],
     gt_lines_batch: List[ArrayNx4[float]],
@@ -85,14 +97,56 @@ def vectorized_precision_recall_fscore(
     distance_threshold: float = 5,
 ) -> Tuple[float, float, float]:
     """
-    Calculates vectorized precision and recall
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param distance: distance object or distance name used
-    to determine true positives ({0})
-    :param distance_threshold: threshold in pixels within which
-    the line is considered to be true positive
-    :return: vectorized precision and recall values
+    Calculates vectorized precision, recall, and F-score.
+
+    Parameters
+    ----------
+    pred_lines_batch
+        list of predicted lines for each image
+    gt_lines_batch
+        list of ground truth lines for each image
+    distance
+        object of distance or distance name used
+        to determine true positives ({0})
+    distance_threshold
+        threshold in pixels within which
+        the line is considered to be true positive
+
+    Returns
+    -------
+    values
+        vectorized precision, recall, and F-score
+
+    Notes
+    -----
+    Vectorized classification metrics are based on the vector representation of a line,
+    that is, its representation as a pair of endpoints.
+    Distance functions are used to determine if a line is True Positive.
+    Further information can be found in papers [1]_ and [2]_.
+    Each line should be represented as [x1, y1, x2, y2].
+    Also, all lines must be scaled to the {1}x{1} resolution
+    to eliminate the resolution factor affecting the distance threshold.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_lines_batch = [np.array([[1, 0, 2, 0], [2, 0, 1, 0], [5, 9, 11, 13]])]
+    >>> gt_lines_batch = [np.array([[1, 0, 2, 0], [5, 10, 11, 12]])]
+    >>> distance = "orthogonal"
+    >>> distance_threshold = 5
+    >>> precision, recall, fscore = vectorized_precision_recall_fscore(
+    >>>     pred_lines_batch,
+    >>>     gt_lines_batch,
+    >>>     distance,
+    >>>     distance_threshold
+    >>> )
+
+    References
+    ----------
+    .. [1] Zhou, Yichao, Haozhi Qi, and Yi Ma. "End-to-end wireframe parsing."
+           Proceedings of the IEEE/CVF International Conference on Computer Vision. 2019.
+    .. [2] Pautrat, Rémi, et al. "SOLD2: Self-supervised occlusion-aware line description and detection."
+           Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021.
     """
 
     distance = (
@@ -114,7 +168,7 @@ def vectorized_precision_recall_fscore(
     return precision, recall, fscore
 
 
-@docstring_arg(DISTANCE_NAMES)
+@docstring_arg(DISTANCE_NAMES, EVALUATION_RESOLUTION)
 def vectorized_precision(
     pred_lines_batch: List[ArrayNx4[float]],
     gt_lines_batch: List[ArrayNx4[float]],
@@ -122,14 +176,56 @@ def vectorized_precision(
     distance_threshold: float = 5,
 ) -> float:
     """
-    Calculates vectorized precision
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param distance: distance object or distance name used
-    to determine true positives ({0})
-    :param distance_threshold: threshold in pixels within which
-    the line is considered to be true positive
-    :return: vectorized precision value
+    Calculates vectorized precision.
+
+    Parameters
+    ----------
+    pred_lines_batch
+        list of predicted lines for each image
+    gt_lines_batch
+        list of ground truth lines for each image
+    distance
+        object of distance or distance name used
+        to determine true positives ({0})
+    distance_threshold
+        threshold in pixels within which
+        the line is considered to be true positive
+
+    Returns
+    -------
+    value
+        vectorized precision
+
+    Notes
+    -----
+    Vectorized classification metrics are based on the vector representation of a line,
+    that is, its representation as a pair of endpoints.
+    Distance functions are used to determine if a line is True Positive.
+    Further information can be found in papers [1]_ and [2]_.
+    Each line should be represented as [x1, y1, x2, y2].
+    Also, all lines must be scaled to the {1}x{1} resolution
+    to eliminate the resolution factor affecting the distance threshold.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_lines_batch = [np.array([[1, 0, 2, 0], [2, 0, 1, 0], [5, 9, 11, 13]])]
+    >>> gt_lines_batch = [np.array([[1, 0, 2, 0], [5, 10, 11, 12]])]
+    >>> distance = "orthogonal"
+    >>> distance_threshold = 5
+    >>> precision = vectorized_precision(
+    >>>     pred_lines_batch,
+    >>>     gt_lines_batch,
+    >>>     distance,
+    >>>     distance_threshold
+    >>> )
+
+    References
+    ----------
+    .. [1] Zhou, Yichao, Haozhi Qi, and Yi Ma. "End-to-end wireframe parsing."
+           Proceedings of the IEEE/CVF International Conference on Computer Vision. 2019.
+    .. [2] Pautrat, Rémi, et al. "SOLD2: Self-supervised occlusion-aware line description and detection."
+           Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021.
     """
 
     precision, _, _ = vectorized_precision_recall_fscore(
@@ -139,7 +235,7 @@ def vectorized_precision(
     return precision
 
 
-@docstring_arg(DISTANCE_NAMES)
+@docstring_arg(DISTANCE_NAMES, EVALUATION_RESOLUTION)
 def vectorized_recall(
     pred_lines_batch: List[ArrayNx4[float]],
     gt_lines_batch: List[ArrayNx4[float]],
@@ -147,14 +243,56 @@ def vectorized_recall(
     distance_threshold: float = 5,
 ) -> float:
     """
-    Calculates vectorized recall
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param distance: distance object or distance name used
-    to determine true positives ({0})
-    :param distance_threshold: threshold in pixels within which
-    the line is considered to be true positive
-    :return: vectorized recall value
+    Calculates vectorized recall.
+
+    Parameters
+    ----------
+    pred_lines_batch
+        list of predicted lines for each image
+    gt_lines_batch
+        list of ground truth lines for each image
+    distance
+        object of distance or distance name used
+        to determine true positives ({0})
+    distance_threshold
+        threshold in pixels within which
+        the line is considered to be true positive
+
+    Returns
+    -------
+    value
+        vectorized recall
+
+    Notes
+    -----
+    Vectorized classification metrics are based on the vector representation of a line,
+    that is, its representation as a pair of endpoints.
+    Distance functions are used to determine if a line is True Positive.
+    Further information can be found in papers [1]_ and [2]_.
+    Each line should be represented as [x1, y1, x2, y2].
+    Also, all lines must be scaled to the {1}x{1} resolution
+    to eliminate the resolution factor affecting the distance threshold.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_lines_batch = [np.array([[1, 0, 2, 0], [2, 0, 1, 0], [5, 9, 11, 13]])]
+    >>> gt_lines_batch = [np.array([[1, 0, 2, 0], [5, 10, 11, 12]])]
+    >>> distance = "orthogonal"
+    >>> distance_threshold = 5
+    >>> recall = vectorized_recall(
+    >>>     pred_lines_batch,
+    >>>     gt_lines_batch,
+    >>>     distance,
+    >>>     distance_threshold
+    >>> )
+
+    References
+    ----------
+    .. [1] Zhou, Yichao, Haozhi Qi, and Yi Ma. "End-to-end wireframe parsing."
+           Proceedings of the IEEE/CVF International Conference on Computer Vision. 2019.
+    .. [2] Pautrat, Rémi, et al. "SOLD2: Self-supervised occlusion-aware line description and detection."
+           Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021.
     """
 
     _, recall, _ = vectorized_precision_recall_fscore(
@@ -164,7 +302,7 @@ def vectorized_recall(
     return recall
 
 
-@docstring_arg(DISTANCE_NAMES)
+@docstring_arg(DISTANCE_NAMES, EVALUATION_RESOLUTION)
 def vectorized_fscore(
     pred_lines_batch: List[ArrayNx4[float]],
     gt_lines_batch: List[ArrayNx4[float]],
@@ -172,14 +310,56 @@ def vectorized_fscore(
     distance_threshold: float = 5,
 ) -> float:
     """
-    Calculates vectorized F-Score
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param distance: distance object or distance name used
-    to determine true positives ({0})
-    :param distance_threshold: threshold in pixels within which
-    the line is considered to be true positive
-    :return: vectorized F-Score value
+    Calculates vectorized F-score.
+
+    Parameters
+    ----------
+    pred_lines_batch
+        list of predicted lines for each image
+    gt_lines_batch
+        list of ground truth lines for each image
+    distance
+        object of distance or distance name used
+        to determine true positives ({0})
+    distance_threshold
+        threshold in pixels within which
+        the line is considered to be true positive
+
+    Returns
+    -------
+    value
+        vectorized F-score
+
+    Notes
+    -----
+    Vectorized classification metrics are based on the vector representation of a line,
+    that is, its representation as a pair of endpoints.
+    Distance functions are used to determine if a line is True Positive.
+    Further information can be found in papers [1]_ and [2]_.
+    Each line should be represented as [x1, y1, x2, y2].
+    Also, all lines must be scaled to the {1}x{1} resolution
+    to eliminate the resolution factor affecting the distance threshold.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_lines_batch = [np.array([[1, 0, 2, 0], [2, 0, 1, 0], [5, 9, 11, 13]])]
+    >>> gt_lines_batch = [np.array([[1, 0, 2, 0], [5, 10, 11, 12]])]
+    >>> distance = "orthogonal"
+    >>> distance_threshold = 5
+    >>> fscore = vectorized_fscore(
+    >>>     pred_lines_batch,
+    >>>     gt_lines_batch,
+    >>>     distance,
+    >>>     distance_threshold
+    >>> )
+
+    References
+    ----------
+    .. [1] Zhou, Yichao, Haozhi Qi, and Yi Ma. "End-to-end wireframe parsing."
+           Proceedings of the IEEE/CVF International Conference on Computer Vision. 2019.
+    .. [2] Pautrat, Rémi, et al. "SOLD2: Self-supervised occlusion-aware line description and detection."
+           Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021.
     """
     _, _, fscore = vectorized_precision_recall_fscore(
         pred_lines_batch,

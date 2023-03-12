@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import numpy as np
 import os
 
-import numpy as np
 from joblib import Parallel, delayed
 from tqdm.contrib import tzip
 from typing import List, Tuple
@@ -53,12 +53,27 @@ class PrecisionRecall:
         widths_batch: ArrayN[int],
     ) -> Tuple[float, float]:
         """
-        Calculates heatmap precision and recall
-        :param pred_lines_batch: list of predicted lines for each image
-        :param gt_lines_batch: list of ground truth lines for each image
-        :param heights_batch: array of heights of each image
-        :param widths_batch: array of widths of each image
-        :return: heatmap precision and recall values
+        Calculates heatmap precision and recall.
+
+        Parameters
+        ----------
+        pred_lines_batch
+            list of predicted lines for each image
+        gt_lines_batch
+            list of ground truth lines for each image
+        heights_batch
+            array of heights of each image
+        widths_batch
+            array of widths of each image
+
+        Returns
+        -------
+        values
+            heatmap precision and recall
+
+        Notes
+        -----
+        Each line should be represented as [x1, y1, x2, y2].
         """
         if not equally_sized(
             [
@@ -108,13 +123,55 @@ def heatmap_precision_recall_fscore(
     widths_batch: ArrayN[int],
 ) -> Tuple[float, float, float]:
     """
-    Calculates heatmap precision and recall
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param heights_batch: array of heights of each image
-    :param widths_batch: array of widths of each image
-    :return: heatmap precision and recall values
+    Calculates heatmap precision, recall, and F-score.
+
+    Parameters
+    ----------
+    pred_lines_batch
+        list of predicted lines for each image
+    gt_lines_batch
+        list of ground truth lines for each image
+    heights_batch
+        array of heights of each image
+    widths_batch
+        array of widths of each image
+
+    Returns
+    -------
+    values
+        heatmap precision, recall, and F-score
+
+    Notes
+    -----
+    Each line should be represented as [x1, y1, x2, y2].
+    In the case of a raster representation of lines (or heatmap),
+    it is possible to consider detection to classify each pixel
+    from the point of view of belonging to any line.
+    See [1]_, [2]_ for more information.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_lines_batch = [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])]
+    >>> gt_lines_batch = [np.array([[5, 0, 0, 5]])]
+    >>> heights_batch = np.array([5])
+    >>> widths_batch = np.array([5])
+    >>> precision, recall, fscore = heatmap_precision_recall_fscore(
+    >>>     pred_lines_batch,
+    >>>     gt_lines_batch,
+    >>>     heights_batch,
+    >>>     widths_batch,
+    >>> )
+
+    References
+    ----------
+    .. [1] Huang, Kun, et al. "Learning to parse wireframes in images of man-made environments."
+           Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. 2018.
+    .. [2] Martin, David R., Charless C. Fowlkes, and Jitendra Malik.
+           "Learning to detect natural image boundaries using local brightness, color, and texture cues."
+           IEEE transactions on pattern analysis and machine intelligence 26.5 (2004): 530-549.
     """
+
     precision, recall = PrecisionRecall().calculate(
         pred_lines_batch, gt_lines_batch, heights_batch, widths_batch
     )
@@ -132,13 +189,55 @@ def heatmap_precision(
     widths_batch: ArrayN[int],
 ) -> float:
     """
-    Calculates heatmap precision
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param heights_batch: array of heights of each image
-    :param widths_batch: array of widths of each image
-    :return: heatmap precision
+    Calculates heatmap precision.
+
+    Parameters
+    ----------
+    pred_lines_batch
+        list of predicted lines for each image
+    gt_lines_batch
+        list of ground truth lines for each image
+    heights_batch
+        array of heights of each image
+    widths_batch
+        array of widths of each image
+
+    Returns
+    -------
+    values
+        heatmap precision
+
+    Notes
+    -----
+    Each line should be represented as [x1, y1, x2, y2].
+    In the case of a raster representation of lines (or heatmap),
+    it is possible to consider detection to classify each pixel
+    from the point of view of belonging to any line.
+    See [1]_, [2]_ for more information.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_lines_batch = [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])]
+    >>> gt_lines_batch = [np.array([[5, 0, 0, 5]])]
+    >>> heights_batch = np.array([5])
+    >>> widths_batch = np.array([5])
+    >>> precision = heatmap_precision(
+    >>>     pred_lines_batch,
+    >>>     gt_lines_batch,
+    >>>     heights_batch,
+    >>>     widths_batch,
+    >>> )
+
+    References
+    ----------
+    .. [1] Huang, Kun, et al. "Learning to parse wireframes in images of man-made environments."
+           Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. 2018.
+    .. [2] Martin, David R., Charless C. Fowlkes, and Jitendra Malik.
+           "Learning to detect natural image boundaries using local brightness, color, and texture cues."
+           IEEE transactions on pattern analysis and machine intelligence 26.5 (2004): 530-549.
     """
+
     precision, _ = PrecisionRecall().calculate(
         pred_lines_batch, gt_lines_batch, heights_batch, widths_batch
     )
@@ -153,12 +252,53 @@ def heatmap_recall(
     widths_batch: ArrayN[int],
 ) -> float:
     """
-    Calculates heatmap recall
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param heights_batch: array of heights of each image
-    :param widths_batch: array of widths of each image
-    :return: heatmap recall
+    Calculates heatmap recall.
+
+    Parameters
+    ----------
+    pred_lines_batch
+        list of predicted lines for each image
+    gt_lines_batch
+        list of ground truth lines for each image
+    heights_batch
+        array of heights of each image
+    widths_batch
+        array of widths of each image
+
+    Returns
+    -------
+    values
+        heatmap recall
+
+    Notes
+    -----
+    Each line should be represented as [x1, y1, x2, y2].
+    In the case of a raster representation of lines (or heatmap),
+    it is possible to consider detection to classify each pixel
+    from the point of view of belonging to any line.
+    See [1]_, [2]_ for more information.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_lines_batch = [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])]
+    >>> gt_lines_batch = [np.array([[5, 0, 0, 5]])]
+    >>> heights_batch = np.array([5])
+    >>> widths_batch = np.array([5])
+    >>> recall = heatmap_recall(
+    >>>     pred_lines_batch,
+    >>>     gt_lines_batch,
+    >>>     heights_batch,
+    >>>     widths_batch,
+    >>> )
+
+    References
+    ----------
+    .. [1] Huang, Kun, et al. "Learning to parse wireframes in images of man-made environments."
+           Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. 2018.
+    .. [2] Martin, David R., Charless C. Fowlkes, and Jitendra Malik.
+           "Learning to detect natural image boundaries using local brightness, color, and texture cues."
+           IEEE transactions on pattern analysis and machine intelligence 26.5 (2004): 530-549.
     """
     _, recall = PrecisionRecall().calculate(
         pred_lines_batch, gt_lines_batch, heights_batch, widths_batch
@@ -174,12 +314,53 @@ def heatmap_fscore(
     widths_batch: ArrayN[int],
 ):
     """
-    Calculates heatmap F-Score
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param heights_batch: array of heights of each image
-    :param widths_batch: array of widths of each image
-    :return: heatmap F-Score value
+    Calculates heatmap F-score.
+
+    Parameters
+    ----------
+    pred_lines_batch
+        list of predicted lines for each image
+    gt_lines_batch
+        list of ground truth lines for each image
+    heights_batch
+        array of heights of each image
+    widths_batch
+        array of widths of each image
+
+    Returns
+    -------
+    values
+        heatmap F-score
+
+    Notes
+    -----
+    Each line should be represented as [x1, y1, x2, y2].
+    In the case of a raster representation of lines (or heatmap),
+    it is possible to consider detection to classify each pixel
+    from the point of view of belonging to any line.
+    See [1]_, [2]_ for more information.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_lines_batch = [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])]
+    >>> gt_lines_batch = [np.array([[5, 0, 0, 5]])]
+    >>> heights_batch = np.array([5])
+    >>> widths_batch = np.array([5])
+    >>> fscore = heatmap_fscore(
+    >>>     pred_lines_batch,
+    >>>     gt_lines_batch,
+    >>>     heights_batch,
+    >>>     widths_batch,
+    >>> )
+
+    References
+    ----------
+    .. [1] Huang, Kun, et al. "Learning to parse wireframes in images of man-made environments."
+           Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. 2018.
+    .. [2] Martin, David R., Charless C. Fowlkes, and Jitendra Malik.
+           "Learning to detect natural image boundaries using local brightness, color, and texture cues."
+           IEEE transactions on pattern analysis and machine intelligence 26.5 (2004): 530-549.
     """
     _, _, fscore = heatmap_precision_recall_fscore(
         pred_lines_batch, gt_lines_batch, heights_batch, widths_batch
@@ -197,14 +378,62 @@ def heatmap_max_fscore(
     thresholds: ArrayN[int],
 ):
     """
-    Calculates the maximum F-Score among all thresholds
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param line_scores_batch: list of predicted lines scores for each image
-    :param heights_batch: array of heights of each image
-    :param widths_batch: array of widths of each image
-    :param thresholds: array of line scores thresholds to filter predicted lines
-    :return: maximum F-Score value
+    Calculates maximum F-score among all line score thresholds.
+
+    Parameters
+    ----------
+    pred_lines_batch
+        list of predicted lines for each image
+    gt_lines_batch
+        list of ground truth lines for each image
+    line_scores_batch
+        list of predicted lines scores for each image
+    heights_batch
+        array of heights of each image
+    widths_batch
+        array of widths of each image
+    thresholds
+        array of line scores thresholds to filter predicted lines
+
+    Notes
+    Notes
+    -----
+    Each line should be represented as [x1, y1, x2, y2].
+    In the case of a raster representation of lines (or heatmap),
+    it is possible to consider detection to classify each pixel
+    from the point of view of belonging to any line.
+    See [1]_, [2]_ for more information.
+
+    Returns
+    -------
+    value
+        maximum F-score
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_lines_batch = [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])]
+    >>> gt_lines_batch = [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])]
+    >>> scores_batch = [np.array([0.1, 1])]
+    >>> heights_batch = np.array([5])
+    >>> widths_batch = np.array([5])
+    >>> thresholds = np.array([0.0, 0.2])
+    >>> aph = heatmap_max_fscore(
+    >>>     pred_lines_batch,
+    >>>     gt_lines_batch,
+    >>>     scores_batch,
+    >>>     heights_batch,
+    >>>     widths_batch,
+    >>>     thresholds,
+    >>> )
+
+    References
+    ----------
+    .. [1] Huang, Kun, et al. "Learning to parse wireframes in images of man-made environments."
+           Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. 2018.
+    .. [2] Martin, David R., Charless C. Fowlkes, and Jitendra Malik.
+           "Learning to detect natural image boundaries using local brightness, color, and texture cues."
+           IEEE transactions on pattern analysis and machine intelligence 26.5 (2004): 530-549.
     """
     precision, recall = heatmap_precision_recall_curve(
         pred_lines_batch,

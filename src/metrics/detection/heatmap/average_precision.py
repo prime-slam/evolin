@@ -33,14 +33,61 @@ def heatmap_average_precision(
     thresholds: ArrayN[float],
 ):
     """
-    Calculates Heatmap Average Precision (AP^H)
-    :param pred_lines_batch: list of predicted lines for each image
-    :param gt_lines_batch: list of ground truth lines for each image
-    :param line_scores_batch: list of predicted lines scores for each image
-    :param heights_batch: array of heights of each image
-    :param widths_batch: array of widths of each image
-    :param thresholds: array of line scores thresholds to filter predicted lines
-    :return: Heatmap Average Precision value
+    Calculates Heatmap Average Precision (:math:`AP^H`)
+
+    Parameters
+    ----------
+    pred_lines_batch
+        list of predicted lines for each image
+    gt_lines_batch
+        list of ground truth lines for each image
+    line_scores_batch
+        list of predicted lines scores for each image
+    heights_batch
+        array of heights of each image
+    widths_batch
+        array of widths of each image
+    thresholds
+        array of line scores thresholds to filter predicted lines
+
+    Notes
+    -----
+    Each line should be represented as [x1, y1, x2, y2].
+    In the case of a raster representation of lines (or heatmap),
+    it is possible to consider detection to classify each pixel
+    from the point of view of belonging to any line.
+    See [1]_, [2]_ for more information.
+
+    Returns
+    -------
+    value
+        Heatmap Average Precision
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_lines_batch = [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])]
+    >>> gt_lines_batch = [np.array([[5, 0, 0, 5], [0, 0, 5, 5]])]
+    >>> scores_batch = [np.array([0.1, 1])]
+    >>> heights_batch = np.array([5])
+    >>> widths_batch = np.array([5])
+    >>> thresholds = np.array([0.0, 0.2])
+    >>> aph = heatmap_average_precision(
+    >>>     pred_lines_batch,
+    >>>     gt_lines_batch,
+    >>>     scores_batch,
+    >>>     heights_batch,
+    >>>     widths_batch,
+    >>>     thresholds,
+    >>> )
+
+    References
+    ----------
+    .. [1] Huang, Kun, et al. "Learning to parse wireframes in images of man-made environments."
+           Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. 2018.
+    .. [2] Martin, David R., Charless C. Fowlkes, and Jitendra Malik.
+           "Learning to detect natural image boundaries using local brightness, color, and texture cues."
+           IEEE transactions on pattern analysis and machine intelligence 26.5 (2004): 530-549.
     """
 
     precision, recall = heatmap_precision_recall_curve(
