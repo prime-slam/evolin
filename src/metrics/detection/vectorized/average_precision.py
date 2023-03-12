@@ -147,7 +147,6 @@ def vectorized_average_precision(
     >>> line_scores_batch = [np.array([0.85328376, 0.98928517, 0.98901153, 0.99069011, 0.51958716])]
     >>> distance = "orthogonal"
     >>> distance_threshold = 5
-    >>> thresholds = np.array([0.0, 0.2])
     >>> ap = vectorized_average_precision(
     >>>     pred_lines_batch,
     >>>     gt_lines_batch,

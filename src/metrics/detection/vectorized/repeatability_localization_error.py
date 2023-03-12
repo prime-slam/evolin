@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Tuple, Union
-
 import itertools as it
 import numpy as np
+
+from typing import List, Tuple, Union
 
 from src.metrics.detection.vectorized import DISTANCE_NAMES, EVALUATION_RESOLUTION
 from src.metrics.detection.vectorized.distance.distance import Distance
@@ -332,7 +332,7 @@ def localization_error(
     >>> second_lines_batch = [np.array([[11, 13, 67, 56]])]
     >>> first_lines_projections_batch = [np.array([[11, 13, 63, 56]])]
     >>> second_lines_projections_batch = [np.array([[1, 1, 11, 10]])]
-    >>> rep, loc_error = repeatability_localization_error(
+    >>> loc_error = localization_error(
     >>>     first_lines_batch,
     >>>     second_lines_batch,
     >>>     first_lines_projections_batch,

@@ -160,7 +160,7 @@ def heatmap_precision_recall_curve(
 
     Notes
     -----
-    Each line should be represented as [x1, y1, x2, y2].
+    Initially, each line should be represented as [x1, y1, x2, y2].
     In the case of a raster representation of lines (or heatmap),
     it is possible to consider detection to classify each pixel
     from the point of view of belonging to any line.

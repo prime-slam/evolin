@@ -51,7 +51,7 @@ def angular_rotation_error(
     >>> first_angle = np.pi / 2
     >>> second_angle = np.pi / 3
     >>> first_rotation = Rotation.from_rotvec(first_angle * axis).as_matrix()
-    >>> second_rotation = Rotation.from_rotvec(first_angle * axis).as_matrix()
+    >>> second_rotation = Rotation.from_rotvec(second_angle * axis).as_matrix()
     >>> error = angular_rotation_error(first_rotation, second_rotation)
     """
     cos = (np.trace(first_rotation @ second_rotation.T) - 1) / 2
@@ -125,7 +125,7 @@ def absolute_translation_error(
     >>>     [0, 0, 0, 1]
     >>> ])
     >>> pose_est = np.vstack([
-    >>>     np.hstack([rotation_est, translation_gt.reshape(-1, 1)]),
+    >>>     np.hstack([rotation_est, translation_est.reshape(-1, 1)]),
     >>>     [0, 0, 0, 1]
     >>> ])
     >>> error = absolute_translation_error(pose_gt, pose_est)

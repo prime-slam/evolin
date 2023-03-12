@@ -70,10 +70,6 @@ class PrecisionRecall:
         -------
         values
             heatmap precision and recall
-
-        Notes
-        -----
-        Each line should be represented as [x1, y1, x2, y2].
         """
         if not equally_sized(
             [
@@ -143,7 +139,7 @@ def heatmap_precision_recall_fscore(
 
     Notes
     -----
-    Each line should be represented as [x1, y1, x2, y2].
+    Initially, each line should be represented as [x1, y1, x2, y2].
     In the case of a raster representation of lines (or heatmap),
     it is possible to consider detection to classify each pixel
     from the point of view of belonging to any line.
@@ -204,12 +200,12 @@ def heatmap_precision(
 
     Returns
     -------
-    values
+    value
         heatmap precision
 
     Notes
     -----
-    Each line should be represented as [x1, y1, x2, y2].
+    Initially, each line should be represented as [x1, y1, x2, y2].
     In the case of a raster representation of lines (or heatmap),
     it is possible to consider detection to classify each pixel
     from the point of view of belonging to any line.
@@ -267,12 +263,12 @@ def heatmap_recall(
 
     Returns
     -------
-    values
+    value
         heatmap recall
 
     Notes
     -----
-    Each line should be represented as [x1, y1, x2, y2].
+    Initially, each line should be represented as [x1, y1, x2, y2].
     In the case of a raster representation of lines (or heatmap),
     it is possible to consider detection to classify each pixel
     from the point of view of belonging to any line.
@@ -329,12 +325,12 @@ def heatmap_fscore(
 
     Returns
     -------
-    values
+    value
         heatmap F-score
 
     Notes
     -----
-    Each line should be represented as [x1, y1, x2, y2].
+    Initially, each line should be represented as [x1, y1, x2, y2].
     In the case of a raster representation of lines (or heatmap),
     it is possible to consider detection to classify each pixel
     from the point of view of belonging to any line.
@@ -396,9 +392,8 @@ def heatmap_max_fscore(
         array of line scores thresholds to filter predicted lines
 
     Notes
-    Notes
     -----
-    Each line should be represented as [x1, y1, x2, y2].
+    Initially, each line should be represented as [x1, y1, x2, y2].
     In the case of a raster representation of lines (or heatmap),
     it is possible to consider detection to classify each pixel
     from the point of view of belonging to any line.

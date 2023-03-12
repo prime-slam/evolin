@@ -48,7 +48,7 @@ class PrecisionRecall:
 
         Returns
         -------
-        value
+        values
             precision and recall
 
         """
@@ -98,7 +98,7 @@ def precision_recall_fscore(
     Returns
     -------
     values
-        precision, recall and fscore.
+        precision, recall, and fscore
 
     Notes
     -----
