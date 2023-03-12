@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/prime-slam/evolin/documentation/assets/logo.png">
+  <img src="https://raw.githubusercontent.com/prime-slam/evolin/main/assets/logo.png">
 </div>
 
 ---
