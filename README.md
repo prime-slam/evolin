@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/prime-slam/evolin/documentation/assets/logo.png">
+  <img src="https://raw.githubusercontent.com/prime-slam/evolin/main/assets/logo.png">
 </div>
 
 ---
@@ -42,7 +42,7 @@ we annotated `lr kt2` and `of kt2` trajectories from [ICL NUIM](https://www.doc.
 as well as `fr3/cabinet` and `fr1/desk` trajectories from [TUM RGB-D](https://cvg.cit.tum.de/data/datasets/rgbd-dataset).
 Only breaking segments have been annotated,
 such as ceilings, floors, walls, doors, and furniture linear elements.
-The datasets can be downloaded here.
+The datasets can be downloaded [here](https://disk.yandex.com/d/DLAOGP6FI_27hQ).
 
 ## Metrics
 

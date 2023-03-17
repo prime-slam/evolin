@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Tuple, Union
-
 import itertools as it
 import numpy as np
+
+from typing import List, Tuple, Union
 
 from src.metrics.detection.vectorized import DISTANCE_NAMES, EVALUATION_RESOLUTION
 from src.metrics.detection.vectorized.distance.distance import Distance
@@ -30,7 +30,7 @@ from src.typing import ArrayNx4
 __all__ = ["repeatability", "localization_error", "repeatability_localization_error"]
 
 
-@docstring_arg(DISTANCE_NAMES)
+@docstring_arg(DISTANCE_NAMES, EVALUATION_RESOLUTION)
 def repeatability_localization_error(
     first_lines_batch: List[ArrayNx4[float]],
     second_lines_batch: List[ArrayNx4[float]],
@@ -41,17 +41,60 @@ def repeatability_localization_error(
 ) -> Tuple[float, float]:
     """
     Calculates repeatability and localization error
-    :param first_lines_batch: list of lines for each first camera poses
-    :param second_lines_batch: list of lines for each second camera poses
-    :param first_lines_projections_batch: list of reprojected lines from first camera pose
-    to corresponding second camera pose
-    :param second_lines_projections_batch: list of reprojected lines from second camera pose
-    to corresponding first camera pose
-    :param distance: distance object or distance name used
-    to determine correctly reprojected lines ({0})
-    :param distance_threshold: threshold in pixels within which
-    the line is considered to be correctly reprojected
-    :return: repeatability and localization error
+
+    Parameters
+    ----------
+    first_lines_batch
+        list of lines for each first camera poses
+    second_lines_batch
+        list of lines for each second camera poses
+    first_lines_projections_batch
+        list of reprojected lines from first camera pose
+        to corresponding second camera pose
+    second_lines_projections_batch
+        list of reprojected lines from second camera pose
+        to corresponding first camera pose
+    distance
+        object of distance or distance name used
+        to determine correctly reprojected lines ({0})
+    distance_threshold
+        threshold in pixels within which
+        the line is considered to be correctly reprojected
+
+    Returns
+    -------
+    values
+        repeatability and localization error
+
+    Notes
+    -----
+    Repeatability metrics show how often a line can be re-detected on a frame stream.
+    The distance functions are used to determine how close the projection
+    of the line from the first frame is to the closest line on the second frame.
+    Further information can be found in paper [1]_.
+    Each line should be represented as [x1, y1, x2, y2].
+    Also, all lines must be scaled to the {1}x{1} resolution
+    to eliminate the resolution factor affecting the distance threshold.
+
+    Examples
+    --------
+    >>> first_lines_batch = [np.array([[1, 1, 10, 10]])]
+    >>> second_lines_batch = [np.array([[11, 13, 67, 56]])]
+    >>> first_lines_projections_batch = [np.array([[11, 13, 63, 56]])]
+    >>> second_lines_projections_batch = [np.array([[1, 1, 11, 10]])]
+    >>> rep, loc_error = repeatability_localization_error(
+    >>>     first_lines_batch,
+    >>>     second_lines_batch,
+    >>>     first_lines_projections_batch,
+    >>>     second_lines_projections_batch,
+    >>>     distance="orthogonal",
+    >>>     distance_threshold=5
+    >>> )
+
+    References
+    ----------
+    .. [1] Pautrat, Rémi, et al. "SOLD2: Self-supervised occlusion-aware line description and detection."
+           Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021.
     """
 
     all_lines = list(
@@ -159,7 +202,7 @@ def repeatability_localization_error(
     return repeatability_, localization_error_
 
 
-@docstring_arg(DISTANCE_NAMES)
+@docstring_arg(DISTANCE_NAMES, EVALUATION_RESOLUTION)
 def repeatability(
     first_lines_batch: List[ArrayNx4[float]],
     second_lines_batch: List[ArrayNx4[float]],
@@ -170,17 +213,60 @@ def repeatability(
 ) -> float:
     """
     Calculates repeatability
-    :param first_lines_batch: list of lines for each first camera poses
-    :param second_lines_batch: list of lines for each second camera poses
-    :param first_lines_projections_batch: list of reprojected lines from first camera pose
-    to corresponding second camera pose
-    :param second_lines_projections_batch: list of reprojected lines from second camera pose
-    to corresponding first camera pose
-    :param distance: distance object or distance name used
-    to determine correctly reprojected lines ({0})
-    :param distance_threshold: threshold in pixels within which
-    the line is considered to be correctly reprojected
-    :return: repeatability
+
+    Parameters
+    ----------
+    first_lines_batch
+        list of lines for each first camera poses
+    second_lines_batch
+        list of lines for each second camera poses
+    first_lines_projections_batch
+        list of reprojected lines from first camera pose
+        to corresponding second camera pose
+    second_lines_projections_batch
+        list of reprojected lines from second camera pose
+        to corresponding first camera pose
+    distance
+        object of distance or distance name used
+        to determine correctly reprojected lines ({0})
+    distance_threshold
+        threshold in pixels within which
+        the line is considered to be correctly reprojected
+
+    Returns
+    -------
+    value
+        repeatability
+
+    Notes
+    -----
+    Repeatability metrics show how often a line can be re-detected on a frame stream.
+    The distance functions are used to determine how close the projection
+    of the line from the first frame is to the closest line on the second frame.
+    Further information can be found in paper [1]_.
+    Each line should be represented as [x1, y1, x2, y2].
+    Also, all lines must be scaled to the {1}x{1} resolution
+    to eliminate the resolution factor affecting the distance threshold.
+
+    Examples
+    --------
+    >>> first_lines_batch = [np.array([[1, 1, 10, 10]])]
+    >>> second_lines_batch = [np.array([[11, 13, 67, 56]])]
+    >>> first_lines_projections_batch = [np.array([[11, 13, 63, 56]])]
+    >>> second_lines_projections_batch = [np.array([[1, 1, 11, 10]])]
+    >>> rep = repeatability(
+    >>>     first_lines_batch,
+    >>>     second_lines_batch,
+    >>>     first_lines_projections_batch,
+    >>>     second_lines_projections_batch,
+    >>>     distance="orthogonal",
+    >>>     distance_threshold=5
+    >>> )
+
+    References
+    ----------
+    .. [1] Pautrat, Rémi, et al. "SOLD2: Self-supervised occlusion-aware line description and detection."
+           Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021.
     """
 
     repeatability_, _ = repeatability_localization_error(
@@ -194,7 +280,7 @@ def repeatability(
     return repeatability_
 
 
-@docstring_arg(DISTANCE_NAMES)
+@docstring_arg(DISTANCE_NAMES, EVALUATION_RESOLUTION)
 def localization_error(
     first_lines_batch: List[ArrayNx4[float]],
     second_lines_batch: List[ArrayNx4[float]],
@@ -205,17 +291,60 @@ def localization_error(
 ) -> float:
     """
     Calculates localization error
-    :param first_lines_batch: list of lines for each first camera poses
-    :param second_lines_batch: list of lines for each second camera poses
-    :param first_lines_projections_batch: list of reprojected lines from first camera pose
-    to corresponding second camera pose
-    :param second_lines_projections_batch: list of reprojected lines from second camera pose
-    to corresponding first camera pose
-    :param distance: distance object or distance name used
-    to determine correctly reprojected lines ({0})
-    :param distance_threshold: threshold in pixels within which
-    the line is considered to be correctly reprojected
-    :return: localization error
+
+    Parameters
+    ----------
+    first_lines_batch
+        list of lines for each first camera poses
+    second_lines_batch
+        list of lines for each second camera poses
+    first_lines_projections_batch
+        list of reprojected lines from first camera pose
+        to corresponding second camera pose
+    second_lines_projections_batch
+        list of reprojected lines from second camera pose
+        to corresponding first camera pose
+    distance
+        object of distance or distance name used
+        to determine correctly reprojected lines ({0})
+    distance_threshold
+        threshold in pixels within which
+        the line is considered to be correctly reprojected
+
+    Returns
+    -------
+    values
+        localization error
+
+    Notes
+    -----
+    Repeatability metrics show how often a line can be re-detected on a frame stream.
+    The distance functions are used to determine how close the projection
+    of the line from the first frame is to the closest line on the second frame.
+    Further information can be found in paper [1]_.
+    Each line should be represented as [x1, y1, x2, y2].
+    Also, all lines must be scaled to the {1}x{1} resolution
+    to eliminate the resolution factor affecting the distance threshold.
+
+    Examples
+    --------
+    >>> first_lines_batch = [np.array([[1, 1, 10, 10]])]
+    >>> second_lines_batch = [np.array([[11, 13, 67, 56]])]
+    >>> first_lines_projections_batch = [np.array([[11, 13, 63, 56]])]
+    >>> second_lines_projections_batch = [np.array([[1, 1, 11, 10]])]
+    >>> loc_error = localization_error(
+    >>>     first_lines_batch,
+    >>>     second_lines_batch,
+    >>>     first_lines_projections_batch,
+    >>>     second_lines_projections_batch,
+    >>>     distance="orthogonal",
+    >>>     distance_threshold=5
+    >>> )
+
+    References
+    ----------
+    .. [1] Pautrat, Rémi, et al. "SOLD2: Self-supervised occlusion-aware line description and detection."
+           Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021.
     """
 
     _, localization_error_ = repeatability_localization_error(

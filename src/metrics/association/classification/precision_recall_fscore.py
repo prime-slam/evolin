@@ -37,10 +37,20 @@ class PrecisionRecall:
         gt_associations_batch: List[ArrayNx2[float]],
     ) -> Tuple[float, float]:
         """
-        Calculates precision and recall
-        :param pred_associations_batch: list of predicted associations for each image pair
-        :param gt_associations_batch: list of ground truth associations for each image pair
-        :return: precision and recall
+        Calculates precision and recall.
+
+        Parameters
+        ----------
+        pred_associations_batch
+            list of predicted associations for each image pair
+        gt_associations_batch
+            list of ground truth associations for each image pair
+
+        Returns
+        -------
+        values
+            precision and recall
+
         """
         if not equally_sized(
             [
@@ -76,10 +86,35 @@ def precision_recall_fscore(
     gt_associations_batch: List[ArrayNx2[float]],
 ) -> Tuple[float, float, float]:
     """
-    Calculates precision, recall and fscore
-    :param pred_associations_batch: list of predicted associations for each image pair
-    :param gt_associations_batch: list of ground truth associations for each image pair
-    :return: precision, recall and fscore
+    Calculates precision, recall, and F-score in a line association problem.
+
+    Parameters
+    ----------
+    pred_associations_batch
+        list of predicted associations for each image pair
+    gt_associations_batch
+        list of ground truth associations for each image pair
+
+    Returns
+    -------
+    values
+        precision, recall, and fscore
+
+    Notes
+    -----
+    A pair of line indices represent each association,
+    the first index corresponds to a line in the line array for the first image,
+    and the second index corresponds to a line in the line array for the second image.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_associations_batch = [np.array([[0, 0], [1, 1], [2, 2]])]
+    >>> gt_associations_batch = [np.array([[0, 0], [1, 1], [3, 3]])]
+    >>> precision_, recall_, fscore_ = precision_recall_fscore(
+    >>>     pred_associations_batch,
+    >>>     gt_associations_batch
+    >>> )
     """
     precision, recall = PrecisionRecall().calculate(
         pred_associations_batch, gt_associations_batch
@@ -96,10 +131,35 @@ def precision(
     gt_associations_batch: List[ArrayNx2[float]],
 ) -> float:
     """
-    Calculates precision
-    :param pred_associations_batch: list of predicted associations for each image pair
-    :param gt_associations_batch: list of ground truth associations for each image pair
-    :return: precision
+    Calculates precision in a line association problem.
+
+    Parameters
+    ----------
+    pred_associations_batch
+        list of predicted associations for each image pair
+    gt_associations_batch
+        list of ground truth associations for each image pair
+
+    Returns
+    -------
+    value
+        precision
+
+    Notes
+    -----
+    A pair of line indices represent each association,
+    the first index corresponds to a line in the line array for the first image,
+    and the second index corresponds to a line in the line array for the second image.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_associations_batch = [np.array([[0, 0], [1, 1], [2, 2]])]
+    >>> gt_associations_batch = [np.array([[0, 0], [1, 1], [3, 3]])]
+    >>> precision_ = precision(
+    >>>     pred_associations_batch,
+    >>>     gt_associations_batch
+    >>> )
     """
     precision, _ = PrecisionRecall().calculate(
         pred_associations_batch, gt_associations_batch
@@ -113,10 +173,35 @@ def recall(
     gt_associations_batch: List[ArrayNx2[float]],
 ) -> float:
     """
-    Calculates recall
-    :param pred_associations_batch: list of predicted associations for each image pair
-    :param gt_associations_batch: list of ground truth associations for each image pair
-    :return: recall
+    Calculates recall in a line association problem.
+
+    Parameters
+    ----------
+    pred_associations_batch
+        list of predicted associations for each image pair
+    gt_associations_batch
+        list of ground truth associations for each image pair
+
+    Returns
+    -------
+    value
+        recall
+
+    Notes
+    -----
+    A pair of line indices represent each association,
+    the first index corresponds to a line in the line array for the first image,
+    and the second index corresponds to a line in the line array for the second image.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_associations_batch = [np.array([[0, 0], [1, 1], [2, 2]])]
+    >>> gt_associations_batch = [np.array([[0, 0], [1, 1], [3, 3]])]
+    >>> recall_ = recall(
+    >>>     pred_associations_batch,
+    >>>     gt_associations_batch
+    >>> )
     """
     _, recall = PrecisionRecall().calculate(
         pred_associations_batch, gt_associations_batch
@@ -130,10 +215,35 @@ def fscore(
     gt_associations_batch: List[ArrayNx2[float]],
 ):
     """
-    Calculates fscore
-    :param pred_associations_batch: list of predicted associations for each image pair
-    :param gt_associations_batch: list of ground truth associations for each image pair
-    :return: fscore
+    Calculates F-score in a line association problem.
+
+    Parameters
+    ----------
+    pred_associations_batch
+        list of predicted associations for each image pair
+    gt_associations_batch
+        list of ground truth associations for each image pair
+
+    Returns
+    -------
+    value
+        F-score
+
+    Notes
+    -----
+    A pair of line indices represent each association,
+    the first index corresponds to a line in the line array for the first image,
+    and the second index corresponds to a line in the line array for the second image.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> pred_associations_batch = [np.array([[0, 0], [1, 1], [2, 2]])]
+    >>> gt_associations_batch = [np.array([[0, 0], [1, 1], [3, 3]])]
+    >>> recall_ = fscore(
+    >>>     pred_associations_batch,
+    >>>     gt_associations_batch
+    >>> )
     """
     _, _, fscore = precision_recall_fscore(
         pred_associations_batch, gt_associations_batch
