@@ -20,10 +20,10 @@ from src.typing import Array4x4
 
 class RelativePoseEstimator:
     def __init__(self):
-        self.iterations_number = 20
-        self.optimizer_iterations_number = 10
+        self.iterations_number = 50
+        self.optimizer_iterations_number = 30
         self.reprojection_threshold = 1000
-        self.edges_min_number = 10
+        self.edges_min_number = 12
 
     def estimate(
         self,
@@ -38,9 +38,8 @@ class RelativePoseEstimator:
         v1.set_id(0)
         v1.set_fixed(False)
         optimizer.add_vertex(v1)
+        line_edges = []
         v1.set_estimate(g2o.SE3Quat(np.eye(3), np.zeros((3,))))
-
-        edges = []
 
         lines_number = len(second_lines)
         information = np.eye(3)
@@ -49,37 +48,40 @@ class RelativePoseEstimator:
             measurement = np.cross(
                 np.append(first_lines[i][0], 1), np.append(first_lines[i][1], 1)
             )
-            edge = self.__create_edge(
+            first_edge = self.__create_edge(
                 v1, measurement, information, calibration_matrix, second_lines_3d[i][0]
             )
-            optimizer.add_edge(edge)
-            edges.append(edge)
-
-            edge = self.__create_edge(
+            second_edge = self.__create_edge(
                 v1, measurement, information, calibration_matrix, second_lines_3d[i][1]
             )
-            optimizer.add_edge(edge)
-            edges.append(edge)
+            optimizer.add_edge(first_edge)
+            optimizer.add_edge(second_edge)
+            line_edges.append((first_edge, second_edge))
 
-        inlier_mask = np.ones((2 * lines_number,), dtype=bool)
+        inlier_mask = np.ones(lines_number, dtype=bool)
 
         for i in range(self.iterations_number):
             v1.set_estimate(g2o.SE3Quat(np.eye(3), np.zeros((3,))))
             optimizer.initialize_optimization()
             optimizer.optimize(self.optimizer_iterations_number)
 
-            for j, edge in enumerate(edges):
-                if edge.chi2() > self.reprojection_threshold / (i + 1) ** 2:
+            for j, (first_edge, second_edge) in enumerate(line_edges):
+                if (
+                    first_edge.chi2() + second_edge.chi2()
+                ) / 2 > self.reprojection_threshold / (i + 1) ** 2:
                     inlier_mask[j] = False
-                    edge.set_level(1)
+                    first_edge.set_level(1)
+                    second_edge.set_level(1)
                 else:
                     inlier_mask[j] = True
-                    edge.set_level(0)
+                    first_edge.set_level(0)
+                    second_edge.set_level(0)
 
                 if i == self.iterations_number - 2:
-                    edge.set_robust_kernel(None)
+                    first_edge.set_robust_kernel(None)
+                    second_edge.set_robust_kernel(None)
 
-            if np.count_nonzero(inlier_mask) < self.edges_min_number:
+            if 2 * np.count_nonzero(inlier_mask) < self.edges_min_number:
                 break
 
         second_to_first_pose = v1.estimate().matrix()
