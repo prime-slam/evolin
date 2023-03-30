@@ -22,7 +22,7 @@ class RelativePoseEstimator:
     def __init__(self):
         self.iterations_number = 50
         self.optimizer_iterations_number = 30
-        self.reprojection_threshold = 1000
+        self.reprojection_threshold = 20000
         self.edges_min_number = 12
 
     def estimate(
