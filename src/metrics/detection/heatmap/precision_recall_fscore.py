@@ -308,7 +308,7 @@ def heatmap_fscore(
     gt_lines_batch: List[ArrayNx4[float]],
     heights_batch: ArrayN[int],
     widths_batch: ArrayN[int],
-):
+) -> float:
     """
     Calculates heatmap F-score.
 
@@ -372,7 +372,7 @@ def heatmap_max_fscore(
     heights_batch: ArrayN[int],
     widths_batch: ArrayN[int],
     thresholds: ArrayN[int],
-):
+) -> float:
     """
     Calculates maximum F-score among all line score thresholds.
 
@@ -413,7 +413,7 @@ def heatmap_max_fscore(
     >>> heights_batch = np.array([5])
     >>> widths_batch = np.array([5])
     >>> thresholds = np.array([0.0, 0.2])
-    >>> aph = heatmap_max_fscore(
+    >>> max_fscore = heatmap_max_fscore(
     >>>     pred_lines_batch,
     >>>     gt_lines_batch,
     >>>     scores_batch,

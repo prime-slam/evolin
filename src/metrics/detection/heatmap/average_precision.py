@@ -31,7 +31,7 @@ def heatmap_average_precision(
     heights_batch: ArrayN[int],
     widths_batch: ArrayN[int],
     thresholds: ArrayN[float],
-):
+) -> float:
     """
     Calculates Heatmap Average Precision (:math:`AP^H`)
 
