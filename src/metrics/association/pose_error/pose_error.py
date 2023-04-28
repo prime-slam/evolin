@@ -135,7 +135,9 @@ def absolute_translation_error(
     return np.linalg.norm(delta_translation)
 
 
-def pose_error(pose_gt, pose_est) -> Tuple[float, float, float]:
+def pose_error(
+    pose_gt: Array4x4[float], pose_est: Array4x4[float]
+) -> Tuple[float, float, float]:
     """
     Calculates pose errors.
 

@@ -14,6 +14,7 @@
 
 from enum import Enum
 
+from src.metrics.detection.vectorized.distance.distance import Distance
 from src.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
 from src.metrics.detection.vectorized.distance.structural import StructuralDistance
 
@@ -29,7 +30,7 @@ class DistanceName(Enum):
 
 class DistanceFactory:
     @staticmethod
-    def from_string(distance_name: str):
+    def from_string(distance_name: str) -> Distance:
         distances = {
             DistanceName.orthogonal: OrthogonalDistance,
             DistanceName.structural: StructuralDistance,

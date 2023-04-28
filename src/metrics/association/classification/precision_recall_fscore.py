@@ -50,7 +50,6 @@ class PrecisionRecall:
         -------
         values
             precision and recall
-
         """
         if not equally_sized(
             [
@@ -213,7 +212,7 @@ def recall(
 def fscore(
     pred_associations_batch: List[ArrayNx2[float]],
     gt_associations_batch: List[ArrayNx2[float]],
-):
+) -> float:
     """
     Calculates F-score in a line association problem.
 
