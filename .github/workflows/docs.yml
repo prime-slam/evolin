@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   # Build the documentation and upload the static HTML files as an artifact.
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     strategy:
@@ -37,20 +37,7 @@ jobs:
       - name: Build documentation
         run: pdoc evolin -d numpy --math -o docs
 
-      - name: Upload documentation
-        uses: actions/upload-pages-artifact@v1
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          path: docs/
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v2
+          folder: docs # The folder the action should deploy.
