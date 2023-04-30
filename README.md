@@ -7,7 +7,7 @@
 [![License: Apache License 2.0](https://img.shields.io/github/license/saltstack/salt)](https://opensource.org/license/apache-2-0/)
 
 EVOLIN is a benchmark for evaluation of line detection and association results. We provide a set of docker-packed line detection and association algorithms, metrics to evaluate them, and line-annotated data.
-Additional information can be found on our [web page](https://prime-slam.github.io/evolin/) and in the [article](https://arxiv.org/abs/2303.05162).
+Additional information can be found on our [web page](https://prime-slam.github.io/evolin/), in the [article](https://arxiv.org/abs/2303.05162), and in the [documentation](https://prime-slam.github.io/evolin/docs/evolin.html).
 
 ## Installation
 
