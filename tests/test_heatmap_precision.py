@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.heatmap import heatmap_precision
+from evolin.metrics.detection.heatmap import heatmap_precision
 
 
 @pytest.mark.parametrize(

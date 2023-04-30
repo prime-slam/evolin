@@ -19,8 +19,8 @@ import numpy as np
 from skimage import io
 
 from evaluation.common.utils import clip_lines, is_nonzero_length, scale_lines
-from src.metrics.detection.vectorized import EVALUATION_RESOLUTION
-from src.typing import (
+from evolin.metrics.detection.vectorized import EVALUATION_RESOLUTION
+from evolin.typing import (
     ArrayNx4,
     Array4x4,
     ArrayNxM,

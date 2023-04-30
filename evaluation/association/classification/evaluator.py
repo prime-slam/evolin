@@ -19,8 +19,8 @@ from evaluation.common.metric_information.metric_info import (
     MetricInfo,
     SimpleMetricInfo,
 )
-from src.metrics.association.classification import precision_recall_fscore
-from src.typing import ArrayNx4
+from evolin.metrics.association.classification import precision_recall_fscore
+from evolin.typing import ArrayNx4
 
 
 class ClassificationEvaluator(Evaluator):

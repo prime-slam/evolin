@@ -15,8 +15,8 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.vectorized import vectorized_precision
-from src.metrics.detection.vectorized.distance.structural import StructuralDistance
+from evolin.metrics.detection.vectorized import vectorized_precision
+from evolin.metrics.detection.vectorized.distance.structural import StructuralDistance
 
 
 @pytest.mark.parametrize(

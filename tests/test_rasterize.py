@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.heatmap.utils import rasterize
+from evolin.metrics.detection.heatmap.utils import rasterize
 
 
 @pytest.mark.parametrize(

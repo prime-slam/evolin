@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 
 from common import DATA_PATH
-from src.metrics.detection.vectorized import vectorized_average_precision
+from evolin.metrics.detection.vectorized import vectorized_average_precision
 
 
 def test_oap():

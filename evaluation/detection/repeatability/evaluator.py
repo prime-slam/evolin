@@ -34,11 +34,11 @@ from evaluation.common.geometry.project_lines import (
     make_projected_line_pairs,
 )
 from evaluation.common.utils import filter_lines_by_score
-from src.metrics.detection.vectorized import (
+from evolin.metrics.detection.vectorized import (
     repeatability_localization_error,
 )
-from src.metrics.detection.vectorized.distance.distance_factory import DistanceName
-from src.typing import ArrayNx4, ArrayN, Array4x4
+from evolin.metrics.detection.vectorized.distance.distance_factory import DistanceName
+from evolin.typing import ArrayNx4, ArrayN, Array4x4
 
 
 class UnscoredEvaluator(Evaluator):

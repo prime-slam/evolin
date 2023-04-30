@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from src.metrics.association.classification import precision_recall_fscore
+from evolin.metrics.association.classification import precision_recall_fscore
 
 
 @pytest.mark.parametrize(

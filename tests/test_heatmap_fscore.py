@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.heatmap import heatmap_fscore, heatmap_max_fscore
+from evolin.metrics.detection.heatmap import heatmap_fscore, heatmap_max_fscore
 
 
 @pytest.mark.parametrize(

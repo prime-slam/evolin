@@ -26,12 +26,12 @@ from evaluation.common.metric_information.metric_info import (
     CompositeMetricInfo,
 )
 from evaluation.common.utils import filter_lines_by_score
-from src.metrics.detection.vectorized import (
+from evolin.metrics.detection.vectorized import (
     vectorized_precision_recall_curve,
     vectorized_precision_recall_fscore,
 )
-from src.metrics.detection.vectorized.distance.distance_factory import DistanceName
-from src.typing import ArrayNx4, ArrayN
+from evolin.metrics.detection.vectorized.distance.distance_factory import DistanceName
+from evolin.typing import ArrayNx4, ArrayN
 
 
 class UnscoredEvaluator(Evaluator):
