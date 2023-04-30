@@ -35,10 +35,10 @@ jobs:
           python -m pip install pdoc -r requirements.txt
 
       - name: Build documentation
-        run: pdoc evolin -d numpy --math -o docs
+        run: pdoc evolin -d numpy --math -o ./docs
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs
+          publish_dir: ./docs
