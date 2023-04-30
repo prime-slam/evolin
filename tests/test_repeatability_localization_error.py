@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from evolin.metrics.detection.vectorized import EVALUATION_RESOLUTION
+from evolin.metrics.detection.vectorized.constants import EVALUATION_RESOLUTION
 from evolin.metrics.detection.vectorized import repeatability_localization_error
 
 
