@@ -7,14 +7,14 @@ on:
       - main
       - docs-page
 
-# security: restrict permissions for CI jobs.
-permissions:
-  contents: read
-
 jobs:
   # Build the documentation and upload the static HTML files as an artifact.
   build-and-deploy:
     runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
 
     strategy:
       matrix:
