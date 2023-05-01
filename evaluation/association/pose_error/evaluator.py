@@ -31,11 +31,11 @@ from evaluation.common.metric_information.metric_info import (
     SimpleMetricInfo,
 )
 from evaluation.common.utils import clip_lines
-from src.metrics.association.pose_error import (
+from evolin.metrics.association.pose_error import (
     pose_error,
     angular_pose_error_auc,
 )
-from src.typing import ArrayNx4, Array4x4
+from evolin.typing import ArrayNx4, Array4x4
 
 
 class PoseErrorEvaluator(Evaluator):

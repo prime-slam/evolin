@@ -15,10 +15,10 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.vectorized.constants import EVALUATION_RESOLUTION
-from src.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
-from src.metrics.detection.vectorized.distance.structural import StructuralDistance
-from src.metrics.detection.vectorized.tp_indicator import (
+from evolin.metrics.detection.vectorized.constants import EVALUATION_RESOLUTION
+from evolin.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
+from evolin.metrics.detection.vectorized.distance.structural import StructuralDistance
+from evolin.metrics.detection.vectorized.tp_indicator import (
     VectorizedTPIndicator,
 )
 

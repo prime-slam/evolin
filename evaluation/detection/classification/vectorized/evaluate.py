@@ -31,10 +31,10 @@ from evaluation.detection.classification.vectorized.evaluator import (
     ScoredEvaluator,
     UnscoredEvaluator,
 )
-from src.metrics.detection.vectorized import (
+from evolin.metrics.detection.vectorized import (
     EVALUATION_RESOLUTION,
 )
-from src.typing import ArrayN
+from evolin.typing import ArrayN
 
 
 def calculate_vectorized_metrics(

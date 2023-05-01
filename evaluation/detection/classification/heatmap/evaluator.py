@@ -22,11 +22,11 @@ from evaluation.common.metric_information.metric_info import (
     SimpleMetricInfo,
     CompositeMetricInfo,
 )
-from src.metrics.detection.heatmap import (
+from evolin.metrics.detection.heatmap import (
     heatmap_precision_recall_fscore,
     heatmap_precision_recall_curve,
 )
-from src.typing import ArrayNx4, ArrayN
+from evolin.typing import ArrayNx4, ArrayN
 
 
 class UnscoredEvaluator(Evaluator):

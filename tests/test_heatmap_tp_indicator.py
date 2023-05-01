@@ -17,7 +17,7 @@ import pytest
 
 from scipy.sparse import dok_matrix
 
-from src.metrics.detection.heatmap.tp_indicator import (
+from evolin.metrics.detection.heatmap.tp_indicator import (
     HeatmapTPIndicator,
 )
 

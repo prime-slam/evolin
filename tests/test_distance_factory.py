@@ -14,9 +14,11 @@
 
 import pytest
 
-from src.metrics.detection.vectorized.distance.distance_factory import DistanceFactory
-from src.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
-from src.metrics.detection.vectorized.distance.structural import StructuralDistance
+from evolin.metrics.detection.vectorized.distance.distance_factory import (
+    DistanceFactory,
+)
+from evolin.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
+from evolin.metrics.detection.vectorized.distance.structural import StructuralDistance
 
 
 @pytest.mark.parametrize(

@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.heatmap.average_precision import (
+from evolin.metrics.detection.heatmap.average_precision import (
     heatmap_average_precision,
 )
 

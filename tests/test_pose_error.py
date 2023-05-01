@@ -17,7 +17,7 @@ import pytest
 from scipy.spatial.transform import Rotation
 
 from evaluation.common.geometry.transform import make_euclidean_transform
-from src.metrics.association.pose_error import (
+from evolin.metrics.association.pose_error import (
     angular_rotation_error,
     angular_translation_error,
     absolute_translation_error,

@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
+from evolin.metrics.detection.vectorized.distance.orthogonal import OrthogonalDistance
 
 
 def test_infinite_distance():

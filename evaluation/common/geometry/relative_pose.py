@@ -15,7 +15,7 @@
 import g2o
 import numpy as np
 
-from src.typing import Array4x4
+from evolin.typing import Array4x4
 
 
 class RelativePoseEstimator:

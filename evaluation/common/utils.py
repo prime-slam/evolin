@@ -20,7 +20,7 @@ from typing import List, Iterable, Optional
 from PIL import Image
 
 from evaluation.common.metric_information.metric_info import MetricInfo
-from src.typing import ArrayNx4, ArrayNx2, ArrayN
+from evolin.typing import ArrayNx4, ArrayNx2, ArrayN
 
 
 def read_csv_batch(

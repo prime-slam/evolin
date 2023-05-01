@@ -14,7 +14,7 @@
 
 import numpy as np
 
-from src.typing import Array3, Array3x3, Array4x4
+from evolin.typing import Array3, Array3x3, Array4x4
 
 
 def make_euclidean_transform(

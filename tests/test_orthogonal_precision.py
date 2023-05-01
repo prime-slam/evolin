@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from src.metrics.detection.vectorized import vectorized_precision
+from evolin.metrics.detection.vectorized import vectorized_precision
 
 
 @pytest.mark.parametrize(
